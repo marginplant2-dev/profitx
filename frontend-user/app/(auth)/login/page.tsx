@@ -63,7 +63,7 @@ function LoginPageInner() {
       typeof window !== "undefined" &&
       !!window.localStorage.getItem(STORAGE_KEYS.refreshToken);
     if (hasRefresh) {
-      router.replace("/dashboard");
+      router.replace("/marketwatch");
     } else {
       try {
         window.localStorage.removeItem("nb.auth");
@@ -82,11 +82,11 @@ function LoginPageInner() {
   useEffect(() => {
     if (!isImpersonating || !impAccess || !impRefresh) return;
     setTokens(impAccess, impRefresh);
-    router.prefetch("/dashboard");
+    router.prefetch("/marketwatch");
     ProfileAPI.me()
       .then((u: any) => {
         setUser(u as any);
-        router.replace("/dashboard");
+        router.replace("/marketwatch");
       })
       .catch(() => {
         toast.error("Impersonation token rejected");
@@ -105,7 +105,7 @@ function LoginPageInner() {
       const pair = await AuthAPI.demoLogin();
       setSession(pair as any);
       toast.success("Demo account ready — ₹50,00,000 virtual balance");
-      router.push("/dashboard");
+      router.push("/marketwatch");
     } catch {
       toast.error("Could not start demo. Please try again.");
     } finally {
@@ -117,7 +117,7 @@ function LoginPageInner() {
     try {
       await login(values.identifier, values.password, values.two_fa_code || undefined);
       toast.success("Welcome back");
-      router.push("/dashboard");
+      router.push("/marketwatch");
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === "TWO_FA_REQUIRED") {

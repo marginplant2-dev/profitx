@@ -8,9 +8,9 @@ import {
   CandlestickChart,
   ChevronLeft,
   FileText,
-  Home,
   MessageCircle,
   ScrollText,
+  Star,
   User,
   Wallet,
 } from "lucide-react";
@@ -24,7 +24,7 @@ import {
 } from "@/lib/useSupport";
 
 const items = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/marketwatch", label: "Market", icon: Star },
   { href: "/terminal", label: "Trading Terminal", icon: CandlestickChart },
   // Positions is the unified blotter — Position / Active / Closed /
   // Cancelled / Rejected tabs all live there. The old separate /orders
@@ -76,7 +76,7 @@ export function Sidebar() {
         {items.map((it) => {
           const active =
             pathname === it.href ||
-            (it.href !== "/dashboard" && pathname?.startsWith(it.href));
+            (it.href !== "/marketwatch" && pathname?.startsWith(it.href));
           const Icon = it.icon;
           return (
             <Link

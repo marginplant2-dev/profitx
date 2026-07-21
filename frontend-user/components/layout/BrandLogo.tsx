@@ -21,7 +21,7 @@ interface BrandLogoProps {
 // - When no branding is loaded, we fall back to the default
 //   "🌱 MarginPlant Broker" wordmark — keeping the existing UX byte-
 //   identical for the bulk of traffic that isn't on a branded link.
-export function BrandLogo({ href = "/dashboard", size = "md", iconOnly = false, className }: BrandLogoProps) {
+export function BrandLogo({ href = "/marketwatch", size = "md", iconOnly = false, className }: BrandLogoProps) {
   const { branding } = useBranding();
   const customName = (branding?.brand_name ?? "").trim();
   // logo_url from the API is relative (e.g. "/static/branding/...");

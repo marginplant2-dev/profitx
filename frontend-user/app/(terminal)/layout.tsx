@@ -171,8 +171,8 @@ export default function TerminalLayout({ children }: { children: React.ReactNode
           Orders/Profile) and the chart canvas needs the vertical room.
           Desktop (md+) keeps the full toolbar untouched. */}
       <header className="relative z-20 hidden h-12 shrink-0 items-center gap-2 border-b border-border bg-card px-3 md:flex">
-        <Button asChild variant="ghost" size="icon" aria-label="Back to dashboard" className="hidden size-8 md:inline-flex">
-          <Link href="/dashboard">
+        <Button asChild variant="ghost" size="icon" aria-label="Back to market" className="hidden size-8 md:inline-flex">
+          <Link href="/marketwatch">
             <ArrowLeft className="size-4" />
           </Link>
         </Button>

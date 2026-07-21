@@ -32,7 +32,7 @@ const PLATFORM_DEFAULT = {
   short_name: "ProfitX",
   description:
     "Trade Indian stocks, F&O, commodities, currencies, and crypto with ProfitX.",
-  start_url: "/dashboard",
+  start_url: "/marketwatch",
   scope: "/",
   display: "standalone",
   orientation: "portrait" as const,
