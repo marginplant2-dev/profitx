@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  ArrowDown,
   ArrowLeft,
+  ArrowUp,
   AtSign,
   Bell,
   ChevronRight,
@@ -18,16 +20,20 @@ import {
   LogOut,
   Mail,
   MessageCircle,
+  Moon,
   Palette,
   Phone,
   ReceiptText,
   Shield,
   ShieldCheck,
   ShieldOff,
+  SlidersHorizontal,
+  Sun,
   User as UserIcon,
   Wallet as WalletIcon,
 } from "lucide-react";
-import { ProfileAPI, AuthAPI } from "@/lib/api";
+import { useTheme } from "next-themes";
+import { ProfileAPI, AuthAPI, WalletAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,7 +44,7 @@ import {
   buildWhatsappUrl,
   useSupportContacts,
 } from "@/lib/useSupport";
-import { cn } from "@/lib/utils";
+import { cn, formatINR } from "@/lib/utils";
 
 /**
  * Mobile-first profile screen modelled on Zerodha Kite / Groww — a
@@ -96,6 +102,18 @@ export default function ProfilePage() {
   // so a logged-in client always sees their profile, never a dead wall.
   const me = fetched ?? storeUser;
 
+  // Wallet summary powers the "Margin Available" card at the top of the
+  // account screen. Reuses the SAME ["wallet","summary"] cache the TopBar /
+  // WalletStrip / marketwatch header already poll — no extra network load.
+  const { data: wallet } = useQuery<any>({
+    queryKey: ["wallet", "summary"],
+    queryFn: () => WalletAPI.summary(),
+    refetchInterval: 10_000,
+    staleTime: 5_000,
+    refetchOnWindowFocus: false,
+  });
+  const marginAvailable = Number(wallet?.available_balance ?? 0);
+
   const [subView, setSubView] = useState<SubView>("main");
   const [name, setName] = useState("");
   useEffect(() => {
@@ -140,112 +158,138 @@ export default function ProfilePage() {
     );
   }
 
-  // ── Main screen ────────────────────────────────────────────────
+  // ── Main screen (account / "DemoAccount") ──────────────────────
   return (
-    <div className="space-y-4 pb-2">
+    <div className="space-y-3 pb-2">
       <ProfileHeader me={me} />
 
-      <ListGroup title="Account">
-        <ListRow
-          icon={UserIcon}
-          tone="primary"
-          label="Personal information"
-          sub="Name, email, mobile, user code"
-          onClick={() => setSubView("personal")}
-        />
-        <ListRowLink
-          icon={WalletIcon}
-          tone="buy"
-          label="Wallet"
-          sub="Deposit, withdraw, balance"
-          href="/wallet"
-        />
-        <ListRowLink
-          icon={CreditCard}
-          tone="primary"
-          label="Bank accounts"
-          sub="Linked payout accounts"
-          href="/wallet#bank"
-        />
-      </ListGroup>
+      {/* Margin Available + Withdraw / Add Funds — mirrors the account
+          screenshot. Balance reads the shared wallet cache; the buttons
+          route to the existing /wallet flows (withdraw form + add-funds
+          wizard) so no money logic is duplicated here. */}
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="flex items-center gap-3">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-buy/12 text-buy">
+            <Shield className="size-5" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Margin Available
+            </div>
+            <div className="font-tabular text-lg font-bold tabular-nums text-buy">
+              {formatINR(marginAvailable)}
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <Button asChild variant="outline" className="h-11">
+            <Link href="/wallet#withdraw">
+              <ArrowUp className="size-4" /> Withdraw
+            </Link>
+          </Button>
+          <Button asChild className="h-11">
+            <Link href="/wallet">
+              <ArrowDown className="size-4" /> Add Funds
+            </Link>
+          </Button>
+        </div>
+      </section>
 
-      <ListGroup title="Trading & reports">
-        <ListRowLink
-          icon={ReceiptText}
-          tone="primary"
-          label="Reports"
-          sub="P&L · Tradebook · Margin · Brokerage · Tax"
-          href="/reports/pnl"
-        />
-        <ListRowLink
-          icon={Bell}
-          tone="warn"
-          label="Notifications"
-          sub="Alerts, account activity, system"
-          href="/notifications"
-        />
-        <ListRowLink
-          icon={FileText}
-          tone="muted"
-          label="Ledger"
-          sub="Cash entries, charges"
-          href="/ledger"
-        />
-      </ListGroup>
-
-      <ListGroup title="Security">
-        <ListRow
+      {/* Password & Security | WhatsApp — two-up quick actions. */}
+      <div className="grid grid-cols-2 gap-3">
+        <TwoUpCard
           icon={KeyRound}
           tone="primary"
-          label="Change password"
-          sub="Update your account password"
+          title="Password & Security"
+          sub="Manage"
           onClick={() => setSubView("security")}
         />
-        <ListRowLink
-          icon={Shield}
-          tone={me.two_fa_enabled ? "buy" : "warn"}
-          label="Two-factor authentication"
-          sub={me.two_fa_enabled ? "Enabled" : "Add a second login step"}
-          badge={me.two_fa_enabled ? "On" : "Off"}
-          badgeTone={me.two_fa_enabled ? "buy" : "warn"}
-          href="/2fa"
-        />
-      </ListGroup>
-
-      <ListGroup title="Preferences">
-        <ListRow
-          icon={Palette}
-          tone="primary"
-          label="Appearance"
-          sub="Switch between light and dark theme"
-          onClick={() => setSubView("appearance")}
-        />
-      </ListGroup>
-
-      <ListGroup title="Support">
-        <ListRow
-          icon={HelpCircle}
-          tone="info"
-          label="Help & support"
-          sub="WhatsApp · email"
+        <TwoUpCard
+          icon={MessageCircle}
+          tone="whatsapp"
+          title="WhatsApp"
+          sub="Chat with us"
           onClick={() => setSubView("support")}
         />
-      </ListGroup>
+      </div>
 
-      <ListGroup title="About">
-        <ListRowLink
-          icon={FileText}
-          tone="muted"
-          label="Terms of service"
-          href="/about"
-        />
-        <ListRowLink
-          icon={FileText}
-          tone="muted"
-          label="Privacy policy"
-          href="/about#privacy"
-        />
-      </ListGroup>
+      {/* Settings list — Appearance / Push / Ledger / Margin / Scripts /
+          Reports, matching the account screenshot. */}
+      <section className="overflow-hidden rounded-2xl border border-border bg-card">
+        <ul className="divide-y divide-border">
+          <SettingRow
+            icon={Palette}
+            tone="primary"
+            title="Appearance"
+            sub="Choose light or dark theme"
+            right={<InlineThemeToggle />}
+          />
+          <SettingRow
+            icon={Bell}
+            tone="warn"
+            title="Push notifications"
+            sub="Trade alerts and important updates on this device."
+            right={<PushToggle />}
+          />
+          <SettingRowLink
+            icon={FileText}
+            tone="muted"
+            title="Ledger Logs"
+            sub="View your transaction history and ledger entries"
+            href="/ledger"
+          />
+          <SettingRowLink
+            icon={CreditCard}
+            tone="primary"
+            title="Margin"
+            sub="Your margin and exposure details"
+            href="/reports/margin"
+          />
+          <SettingRowLink
+            icon={SlidersHorizontal}
+            tone="info"
+            title="Scripts Setting"
+            sub="Block or manage script trading"
+            href="/marketwatch"
+          />
+          <SettingRowLink
+            icon={ReceiptText}
+            tone="buy"
+            title="Reports"
+            sub="Statements and reports in one place"
+            href="/reports/pnl"
+          />
+        </ul>
+      </section>
+
+      {/* Two-factor + Personal info kept reachable (not in the screenshot's
+          primary list but part of the account). */}
+      <section className="overflow-hidden rounded-2xl border border-border bg-card">
+        <ul className="divide-y divide-border">
+          <SettingRow
+            icon={UserIcon}
+            tone="primary"
+            title="Personal information"
+            sub="Name, email, mobile, user code"
+            right={<ChevronRight className="size-4 text-muted-foreground" />}
+            onClick={() => setSubView("personal")}
+          />
+          <SettingRowLink
+            icon={Shield}
+            tone={me.two_fa_enabled ? "buy" : "warn"}
+            title="Two-factor authentication"
+            sub={me.two_fa_enabled ? "Enabled" : "Add a second login step"}
+            href="/2fa"
+          />
+          <SettingRowLink
+            icon={Bell}
+            tone="warn"
+            title="Notifications"
+            sub="Alerts, account activity, system"
+            href="/notifications"
+          />
+        </ul>
+      </section>
 
       <SignOutRow />
 
@@ -456,6 +500,239 @@ function SignOutRow() {
       Sign out
     </button>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// DemoAccount primitives — two-up cards, setting rows, toggles
+// ─────────────────────────────────────────────────────────────────
+function TwoUpCard({
+  icon: Icon,
+  tone,
+  title,
+  sub,
+  onClick,
+}: {
+  icon: any;
+  tone: "primary" | "whatsapp";
+  title: string;
+  sub: string;
+  onClick: () => void;
+}) {
+  const toneCls =
+    tone === "whatsapp"
+      ? "bg-[#25D366]/15 text-[#25D366]"
+      : "bg-primary/12 text-primary";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-start gap-2 rounded-2xl border border-border bg-card p-3 text-left transition-colors hover:bg-muted/30 active:bg-muted/50"
+    >
+      <div className={cn("grid size-9 place-items-center rounded-xl", toneCls)}>
+        <Icon className="size-5" />
+      </div>
+      <div className="min-w-0">
+        <div className="truncate text-sm font-semibold text-foreground">{title}</div>
+        <div className="truncate text-[11px] text-muted-foreground">{sub}</div>
+      </div>
+    </button>
+  );
+}
+
+function SettingRow({
+  icon: Icon,
+  tone = "primary",
+  title,
+  sub,
+  right,
+  onClick,
+}: {
+  icon: any;
+  tone?: Tone;
+  title: string;
+  sub?: string;
+  right?: React.ReactNode;
+  onClick?: () => void;
+}) {
+  const inner = (
+    <>
+      <div className={cn("grid size-10 shrink-0 place-items-center rounded-xl", TONE_BG[tone])}>
+        <Icon className="size-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium text-foreground">{title}</div>
+        {sub && (
+          <div className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{sub}</div>
+        )}
+      </div>
+      {right}
+    </>
+  );
+  if (onClick) {
+    return (
+      <li>
+        <button
+          type="button"
+          onClick={onClick}
+          className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/30 active:bg-muted/50"
+        >
+          {inner}
+        </button>
+      </li>
+    );
+  }
+  return <li className="flex items-center gap-3 px-3 py-3">{inner}</li>;
+}
+
+function SettingRowLink({
+  icon: Icon,
+  tone = "primary",
+  title,
+  sub,
+  href,
+}: {
+  icon: any;
+  tone?: Tone;
+  title: string;
+  sub?: string;
+  href: string;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/30 active:bg-muted/50"
+      >
+        <div className={cn("grid size-10 shrink-0 place-items-center rounded-xl", TONE_BG[tone])}>
+          <Icon className="size-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium text-foreground">{title}</div>
+          {sub && (
+            <div className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{sub}</div>
+          )}
+        </div>
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+      </Link>
+    </li>
+  );
+}
+
+/** Segmented Light / Dark control (screenshot's Appearance row). Uses the
+ *  same next-themes mechanism as ThemeToggle. */
+function InlineThemeToggle() {
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isDark = mounted ? (resolvedTheme ?? theme) !== "light" : true;
+  return (
+    <div className="inline-flex shrink-0 rounded-lg border border-border bg-muted/30 p-0.5">
+      <button
+        type="button"
+        onClick={() => setTheme("light")}
+        className={cn(
+          "flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
+          !isDark ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
+        )}
+      >
+        <Sun className="size-3.5" /> Light
+      </button>
+      <button
+        type="button"
+        onClick={() => setTheme("dark")}
+        className={cn(
+          "flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
+          isDark ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground",
+        )}
+      >
+        <Moon className="size-3.5" /> Dark
+      </button>
+    </div>
+  );
+}
+
+function ToggleSwitch({
+  checked,
+  onClick,
+  disabled,
+}: {
+  checked: boolean;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
+        checked ? "bg-primary" : "bg-muted",
+        disabled && "opacity-60",
+      )}
+    >
+      <span
+        className={cn(
+          "inline-block size-5 transform rounded-full bg-white shadow transition-transform",
+          checked ? "translate-x-[22px]" : "translate-x-0.5",
+        )}
+      />
+    </button>
+  );
+}
+
+/** Push-notification toggle. Reuses `subscribeForWebPush` (VAPID + service
+ *  worker) for enable and best-effort unsubscribes on disable. Reflects the
+ *  browser permission on mount. */
+function PushToggle() {
+  const [on, setOn] = useState(false);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof Notification === "undefined") return;
+    setOn(Notification.permission === "granted");
+  }, []);
+  async function toggle() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      if (!on) {
+        if (typeof Notification === "undefined") {
+          toast.error("Notifications not supported on this device");
+          return;
+        }
+        const perm = await Notification.requestPermission();
+        if (perm !== "granted") {
+          toast.error("Notification permission denied");
+          return;
+        }
+        const { subscribeForWebPush } = await import("@/lib/notify-sound");
+        const ok = await subscribeForWebPush();
+        setOn(ok);
+        if (ok) toast.success("Push notifications enabled");
+        else toast.error("Could not enable push notifications");
+      } else {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          const sub = await reg.pushManager.getSubscription();
+          if (sub) {
+            const endpoint = sub.endpoint;
+            await sub.unsubscribe().catch(() => {});
+            const { PushAPI } = await import("@/lib/api");
+            await PushAPI.unsubscribe(endpoint).catch(() => {});
+          }
+        } catch {
+          // ignore — best effort
+        }
+        setOn(false);
+        toast.success("Push notifications disabled");
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+  return <ToggleSwitch checked={on} onClick={toggle} disabled={busy} />;
 }
 
 // ─────────────────────────────────────────────────────────────────

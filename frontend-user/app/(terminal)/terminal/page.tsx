@@ -25,6 +25,17 @@ import { cn, formatPercent, pnlColor } from "@/lib/utils";
 
 const ORDER_PANEL_COLLAPSED_KEY = "setupfx.terminal.orderPanelCollapsed";
 
+// Long labels for the mobile timeframe button row (screenshot shows
+// "1 Min / 5 Min / 15 Min / 1 Hour / 1 Day"). Keyed by the short
+// TIMEFRAMES label ("1m" / "5m" / "15m" / "1h" / "1D").
+const TF_MOBILE_LABEL: Record<string, string> = {
+  "1m": "1 Min",
+  "5m": "5 Min",
+  "15m": "15 Min",
+  "1h": "1 Hour",
+  "1D": "1 Day",
+};
+
 export default function TradingTerminalPage() {
   const qc = useQueryClient();
   // Mirror the app theme into the embedded TradingView widget. Defaults to
@@ -114,9 +125,11 @@ export default function TradingTerminalPage() {
     refetchOnWindowFocus: false,
   });
 
-  // Chart timeframe — fixed at 5m for the initial chart load + OHLC label.
-  // TradingView's own toolbar handles in-chart timeframe switching.
-  const tf: Timeframe = TIMEFRAMES[1];
+  // Chart timeframe — now user-selectable via the mobile timeframe button
+  // row (1 Min / 5 Min / 15 Min / 1 Hour / 1 Day), matching the terminal
+  // screenshot. Defaults to 1 Min. Drives the interval passed to the
+  // TradingView widget. Desktop still uses the widget's own toolbar.
+  const [tf, setTf] = useState<Timeframe>(TIMEFRAMES[0]);
 
   // Order panel collapse — toggleable via the chevron on the panel's left
   // edge. State persists across reloads so the trader's preferred layout
@@ -426,7 +439,7 @@ export default function TradingTerminalPage() {
             on a standard laptop, which is why the user saw the chart
             and the positions table overlapping with a stray horizontal
             scrollbar inside the chart card. */}
-        <div className="relative flex h-[100dvh] flex-col overflow-hidden bg-card lg:h-auto lg:min-h-0 lg:flex-1 lg:rounded-lg lg:border lg:border-border">
+        <div className="relative flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-card lg:h-auto lg:min-h-0 lg:flex-1 lg:rounded-lg lg:border lg:border-border">
           {/* Floating "expand order panel" button — only rendered when the
               OrderPanel column is fully hidden. Sits at the chart card's
               top-right edge so the user can recover the panel without a
@@ -444,55 +457,32 @@ export default function TradingTerminalPage() {
             </button>
           )}
 
-          {/* Mobile header — back · symbol · exchange · live price/change.
-              Mirrors the reference broker chart screen. lg+ keeps the
-              chart-tabs strip + OHLC header below instead. */}
-          <div className="flex shrink-0 items-center gap-2 border-b border-border bg-card px-3 py-2 lg:hidden">
+          {/* Mobile header — back arrow + instrument chart tabs (BANKNIFTY /
+              CRUDEOIL …), matching the terminal screenshot's top strip. The
+              tabs are the same openTabs the desktop strip uses; the TradingView
+              widget's own legend shows the live symbol · OHLC · change inside
+              the chart pane, so no separate price row is needed here. */}
+          <div className="flex shrink-0 items-center gap-1 border-b border-border bg-card pl-1 pr-2 lg:hidden">
             <Link
               href="/marketwatch"
               aria-label="Back"
-              className="-ml-1 grid size-8 place-items-center rounded text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+              className="grid size-8 shrink-0 place-items-center rounded text-muted-foreground hover:bg-muted/40 hover:text-foreground"
             >
               <ArrowLeft className="size-5" />
             </Link>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="truncate text-sm font-bold">
-                  {instrument?.symbol ?? "—"}
-                </span>
-                {instrument?.exchange && (
-                  <span className="rounded bg-muted px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    {String(instrument.exchange).toUpperCase()}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="ml-auto text-right leading-tight">
-              <div
-                className={cn(
-                  "font-tabular tabular-nums text-sm font-bold",
-                  pnlColor(quote?.change_pct ?? 0),
-                )}
-              >
-                {(quote?.ltp || (quote as any)?.last_ltp)
-                  ? Number(quote?.ltp || (quote as any)?.last_ltp).toFixed(2)
-                  : "—"}
-              </div>
-              <div
-                className={cn(
-                  "font-tabular tabular-nums text-[11px]",
-                  pnlColor(quote?.change_pct ?? 0),
-                )}
-              >
-                {(quote?.change ?? 0) >= 0 ? "+" : ""}
-                {quote?.change?.toFixed?.(2) ?? "0.00"} ({formatPercent(quote?.change_pct ?? 0)})
-              </div>
+            <div className="min-w-0 flex-1">
+              <ChartTabs
+                tabs={tabsWithSelected}
+                active={selectedToken}
+                onSelect={setSelectedToken}
+                onClose={closeTab}
+                onAdded={(token) => setSelectedToken(token)}
+              />
             </div>
           </div>
 
           {/* Chart-tabs strip — desktop only. The mobile header above
-              replaces it on phones (single-symbol context, matches the
-              reference design). */}
+              carries its own ChartTabs instance for phones. */}
           <div className="hidden lg:block">
             <ChartTabs
               tabs={tabsWithSelected}
@@ -620,6 +610,30 @@ export default function TradingTerminalPage() {
               </button>
             ))}
           </div>
+
+          {/* Mobile timeframe buttons — 1 Min / 5 Min / 15 Min / 1 Hour /
+              1 Day. Drives the chart interval (setTf). Active pill uses the
+              buy-green from the screenshot. Only on the chart view; desktop
+              uses the TradingView widget's own toolbar. */}
+          {mobileChartView === "chart" && (
+            <div className="flex shrink-0 items-center gap-1.5 overflow-x-auto border-b border-border bg-card px-3 py-1.5 lg:hidden">
+              {TIMEFRAMES.map((t) => (
+                <button
+                  key={t.label}
+                  type="button"
+                  onClick={() => setTf(t)}
+                  className={cn(
+                    "shrink-0 rounded-md px-3 py-1 text-xs font-semibold transition-colors",
+                    tf.label === t.label
+                      ? "bg-buy text-white"
+                      : "text-muted-foreground hover:bg-muted/50",
+                  )}
+                >
+                  {TF_MOBILE_LABEL[t.label] ?? t.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Chart view — shown only when Charts tab is active on mobile.
               On desktop (lg+) always visible. flex-1 min-h-0 fills remaining

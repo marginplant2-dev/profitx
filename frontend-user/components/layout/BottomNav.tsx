@@ -3,24 +3,25 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Briefcase,
-  Home,
-  LineChart,
-  ListOrdered,
-  User,
+  BarChart3,
+  BookText,
+  Settings,
+  Star,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Five-section mobile terminal nav (matches the app screenshots):
+// MARKET · ORDERS · CHART · POSITION · DEMOACCOUNT. The centre slot is the
+// live candlestick chart. Active tab paints the blue accent.
 const items = [
-  { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/marketwatch", label: "Market", icon: LineChart },
-  // Centre slot is the Orders book (Open / Executed / Rejected tabs).
-  // Replaced the old "Trade" → /terminal FAB per the operator.
-  { href: "/orders", label: "Orders", icon: ListOrdered },
-  // /positions is the unified blotter (Position / Active / Closed /
-  // Cancelled / Rejected tabs). Relabelled "Position" — it was "Orders".
-  { href: "/positions", label: "Position", icon: Briefcase },
-  { href: "/profile", label: "Profile", icon: User },
+  { href: "/marketwatch", label: "MARKET", icon: Star },
+  { href: "/orders", label: "ORDERS", icon: BookText },
+  { href: "/terminal", label: "CHART", icon: BarChart3 },
+  // /positions is the unified blotter (Position / Active / Closed tabs).
+  { href: "/positions", label: "POSITION", icon: Zap },
+  // /profile is the account / settings screen ("DemoAccount").
+  { href: "/profile", label: "DEMOACCOUNT", icon: Settings },
 ];
 
 /**

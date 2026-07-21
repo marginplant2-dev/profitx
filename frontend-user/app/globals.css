@@ -60,44 +60,51 @@
     color-scheme: light;
   }
 
-  /* ── Dark ──────────────────────────────────────────────────────── */
+  /* ── Dark ──────────────────────────────────────────────────────────
+     Navy-dark trading palette (matches the mobile terminal screenshots):
+     deep navy-black surfaces, a bright blue (#3b82f6) accent for tabs /
+     nav / +Add, and Zerodha-tuned green/red for buy-sell + P&L. Every
+     trading surface reads these tokens, so the whole app re-skins from
+     here without touching component code. */
   .dark {
-    --background: 224 71% 4%;             /* #020617 — slate-950 */
-    --foreground: 210 40% 98%;
-    --card: 224 50% 8%;                   /* #0f172a */
-    --card-foreground: 210 40% 98%;
-    --popover: 224 50% 8%;
-    --popover-foreground: 210 40% 98%;
-    --muted: 224 30% 15%;
-    --muted-foreground: 215 20% 65%;
-    --border: 224 20% 18%;
-    --input: 224 20% 18%;
+    --background: 225 44% 7%;             /* #0a0e1a navy-black page */
+    --foreground: 214 32% 91%;            /* #e6ebf3 near-white text */
+    --card: 222 33% 12%;                  /* #141b2b elevated navy card */
+    --card-foreground: 214 32% 91%;
+    --popover: 222 33% 12%;
+    --popover-foreground: 214 32% 91%;
+    --muted: 222 30% 16%;                 /* #1b2335 raised row / chip */
+    --muted-foreground: 218 14% 62%;      /* #8a93a5 labels / dates */
+    --border: 222 24% 20%;               /* #262e40 hairline */
+    --input: 222 24% 20%;
 
-    --ring: 243 75% 65%;
-    --primary: 243 75% 65%;               /* lighter indigo for dark */
-    --primary-foreground: 224 71% 4%;
+    /* Bright blue accent — tabs, active nav, +Add, links */
+    --ring: 217 91% 60%;
+    --primary: 217 91% 60%;               /* #3b82f6 */
+    --primary-foreground: 0 0% 100%;      /* white on blue */
 
-    --secondary: 224 30% 18%;
-    --secondary-foreground: 243 75% 80%;
-    --destructive: 0 72% 58%;
+    --secondary: 222 30% 18%;
+    --secondary-foreground: 214 32% 91%;
+    --destructive: 0 84% 60%;             /* #ef4444 */
     --destructive-foreground: 0 0% 100%;
-    --accent: 224 30% 18%;
-    --accent-foreground: 243 75% 80%;
+    --accent: 222 30% 18%;
+    --accent-foreground: 214 32% 91%;
 
-    --buy: 142 60% 50%;
-    --sell: 354 78% 62%;
-    --profit: 142 60% 50%;
-    --loss: 354 78% 62%;
-    --buy-foreground: 224 71% 4%;
+    /* Buy/sell + P&L — bright, white text on solid buttons */
+    --buy: 142 71% 45%;                   /* #22c55e */
+    --sell: 0 84% 60%;                    /* #ef4444 */
+    --profit: 142 71% 45%;
+    --loss: 0 84% 60%;
+    --buy-foreground: 0 0% 100%;
     --sell-foreground: 0 0% 100%;
 
-    --info: 243 75% 65%;
-    --info-foreground: 224 71% 4%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
 
-    --atm: 38 92% 60%;
+    --atm: 38 92% 55%;
     --atm-foreground: 224 71% 4%;
 
-    --surface-hover: 224 30% 12%;
+    --surface-hover: 222 30% 14%;
 
     color-scheme: dark;
   }

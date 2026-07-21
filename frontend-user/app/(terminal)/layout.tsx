@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { UserWsBridge } from "@/components/common/UserWsBridge";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { InstrumentsPanel } from "@/components/trading/InstrumentsPanel";
 import { OptionChainPicker } from "@/components/trading/OptionChainPicker";
 import { TradeDetailSheet } from "@/components/trading/TradeDetailSheet";
@@ -248,10 +249,14 @@ export default function TerminalLayout({ children }: { children: React.ReactNode
         <main className="min-h-0 flex-1 overflow-hidden">{children}</main>
       </div>
 
-      {/* App bottom-nav intentionally NOT rendered on the chart route
-          (operator: "niche nav bar mat dikh chart me"). Navigation back
-          is via the in-page header's back arrow; the bottom of the chart
-          card is the compact SELL / BUY trade strip instead. */}
+      {/* Mobile app bottom-nav — CHART is one of the five sections
+          (MARKET · ORDERS · CHART · POSITION · DEMOACCOUNT) per the new
+          terminal screenshots, so the chart route now carries the same
+          nav as every other mobile screen. The chart card subtracts the
+          nav's h-14 (3.5rem) from its mobile height so the SELL/BUY strip
+          sits exactly above the nav (see terminal/page.tsx). Hidden on
+          md+ where the desktop layout has no bottom nav. */}
+      <BottomNav />
 
       {/* Footer status bar (Equity / Free / Margin / Balance / Margin
           level / connection) removed per user request — those numbers
