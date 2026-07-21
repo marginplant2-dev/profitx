@@ -154,7 +154,7 @@ function SupportShortcut() {
   const { data: support } = useSupportContacts();
   const waUrl = buildWhatsappUrl(
     support?.whatsapp,
-    "Hi, I need help with my MarginPlant account",
+    "Hi, I need help with my ProfitX account",
   );
   if (!waUrl) return null;
   return (

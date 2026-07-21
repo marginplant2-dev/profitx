@@ -21,7 +21,7 @@ import {
 export const metadata: Metadata = {
   title: "Markets",
   description:
-    "Every market segment live on MarginPlant — NSE, BSE, MCX, currency F&O, spot forex, crypto, ETFs and mutual funds. Hours, lot sizes, statutory charges.",
+    "Every market segment live on ProfitX — NSE, BSE, MCX, currency F&O, spot forex, crypto, ETFs and mutual funds. Hours, lot sizes, statutory charges.",
 };
 
 const SEGMENTS = [

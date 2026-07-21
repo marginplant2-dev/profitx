@@ -51,7 +51,7 @@ export default function AdminLoginPage() {
           </div>
           <CardTitle className="text-2xl">Super Admin Login</CardTitle>
           <CardDescription>
-            MarginPlant Broker control panel — sign in with your admin credentials.
+            ProfitX control panel — sign in with your admin credentials.
           </CardDescription>
         </CardHeader>
         <CardContent>

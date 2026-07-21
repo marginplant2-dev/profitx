@@ -9,9 +9,9 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "IB Management — Introducing Broker Program | MarginPlant",
+  title: "IB Management — Introducing Broker Program | ProfitX",
   description:
-    "Refer traders to MarginPlant and earn recurring commission. A real-time dashboard, multi-tier tracking, and on-time monthly payouts in ₹.",
+    "Refer traders to ProfitX and earn recurring commission. A real-time dashboard, multi-tier tracking, and on-time monthly payouts in ₹.",
 };
 
 const FEATURES = [
@@ -46,7 +46,7 @@ export default function IbManagementPage() {
       <MpPageHero
         eyebrow="IB Management"
         title="Refer traders. Earn recurring commission."
-        lead="The MarginPlant Introducing Broker program pays you for every trader you bring on — with a real-time dashboard, multi-tier tracking, and on-time monthly payouts in ₹."
+        lead="The ProfitX Introducing Broker program pays you for every trader you bring on — with a real-time dashboard, multi-tier tracking, and on-time monthly payouts in ₹."
       >
         <MpButton href="/register" size="lg">
           Become an IB

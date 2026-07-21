@@ -47,7 +47,7 @@ import { Typewriter } from "@/components/ui/typewriter-text";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "MarginPlant — Trade Equity, F&O, Commodities & IPOs on NSE, BSE & MCX",
+  title: "ProfitX — Trade Equity, F&O, Commodities & IPOs on NSE, BSE & MCX",
   description:
     "Institutional-grade execution and a transparent, modern platform for every Indian investor — across Equity, F&O, Commodities and IPOs on NSE, BSE & MCX.",
 };
@@ -184,19 +184,19 @@ const PLATFORMS = [
   {
     icon: Globe,
     tag: "Browser-Based",
-    name: "MarginPlant Web Terminal",
+    name: "ProfitX Web Terminal",
     body: "A browser-based trading terminal with no downloads. Access NSE, BSE & MCX instantly from any device with advanced charts and all order types.",
   },
   {
     icon: Smartphone,
     tag: "iOS & Android",
-    name: "MarginPlant Mobile App",
+    name: "ProfitX Mobile App",
     body: "Trade on the go with live market data, the full option chain, GTT orders, price alerts and instant UPI funding.",
   },
   {
     icon: Monitor,
     tag: "Pro Grade",
-    name: "MarginPlant Desktop",
+    name: "ProfitX Desktop",
     body: "A professional-grade desktop platform for active traders — multi-chart layouts, basket orders, hotkeys and API / algo integration.",
   },
 ];
@@ -339,7 +339,7 @@ const FAQS = [
     a: "Complete a 100% online e-KYC with your PAN and Aadhaar. Most accounts are ready to trade within minutes.",
   },
   {
-    q: "What can I trade on MarginPlant?",
+    q: "What can I trade on ProfitX?",
     a: "Equity Delivery and Intraday, Futures & Options, Commodities on MCX, IPOs and Mutual Funds — all from a single account.",
   },
   {
@@ -466,7 +466,7 @@ export default function HomePage() {
         <MpHeading plain
           align="center"
           eyebrow="Why Choose Us"
-          title="Why Choose MarginPlant"
+          title="Why Choose ProfitX"
           lead="We combine advanced technology with trader-friendly pricing to give you the edge across NSE, BSE & MCX."
         />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -737,7 +737,7 @@ export default function HomePage() {
           <p className="mt-2 text-sm leading-[1.6] text-mp-text-mut">
             Interactive live charts for Nifty 50 with professional indicators,
             multiple timeframes, and real-time pricing are available inside the
-            MarginPlant trading terminal.
+            ProfitX trading terminal.
           </p>
         </div>
       </MpSection>
@@ -815,13 +815,13 @@ export default function HomePage() {
       {/* ── About ─────────────────────────────────────────────────── */}
       <MpSection className="bg-mp-surface-2/60">
         <MpHeading plain
-          eyebrow="About MarginPlant"
+          eyebrow="About ProfitX"
           title="Built on precision & trust"
         />
         <div className="mt-8 grid gap-10 lg:grid-cols-[1.3fr_1fr]">
           <div className="flex flex-col gap-5">
             <p className="text-base leading-[1.7] text-mp-text-mut">
-              MarginPlant was founded with a clear vision — to give every Indian
+              ProfitX was founded with a clear vision — to give every Indian
               investor access to a professional-grade trading platform with
               transparent, simple investing on NSE, BSE & MCX.
             </p>
@@ -832,7 +832,7 @@ export default function HomePage() {
             </p>
             <p className="text-base leading-[1.7] text-mp-text-mut">
               From first-time investors opening a demat account to professional
-              F&O and algo traders, MarginPlant provides the tools, speed and
+              F&O and algo traders, ProfitX provides the tools, speed and
               reliability to trade Indian markets with confidence.
             </p>
             <div className="flex flex-wrap gap-2.5">
@@ -926,7 +926,7 @@ export default function HomePage() {
             </h2>
             <p className="mt-3 text-base leading-[1.7] text-mp-text-mut">
               A delivery-first account designed for investors building long-term
-              wealth in Indian markets. MarginPlant helps you build a portfolio
+              wealth in Indian markets. ProfitX helps you build a portfolio
               of quality stocks, ETFs and mutual funds for steady, compounding
               growth.
             </p>
@@ -959,7 +959,7 @@ export default function HomePage() {
           align="center"
           eyebrow="Partner Program"
           title="Authorised Partner Program"
-          lead="Become an Authorised Person and grow your business by referring investors to MarginPlant."
+          lead="Become an Authorised Person and grow your business by referring investors to ProfitX."
         />
         <div className="mt-12 grid gap-8 lg:grid-cols-2">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -1033,7 +1033,7 @@ export default function HomePage() {
           align="center"
           eyebrow="Get Started"
           title="Start Trading in 3 Simple Steps"
-          lead="Begin your investing journey on NSE, BSE & MCX with MarginPlant today."
+          lead="Begin your investing journey on NSE, BSE & MCX with ProfitX today."
         />
         <div className="mt-12 grid gap-5 sm:grid-cols-3">
           {GET_STARTED.map((s) => (
@@ -1062,7 +1062,7 @@ export default function HomePage() {
           align="center"
           eyebrow="FAQ"
           title="Frequently Asked Questions"
-          lead="Find answers to the most common questions about trading with MarginPlant."
+          lead="Find answers to the most common questions about trading with ProfitX."
         />
         <div className="mx-auto mt-12 flex max-w-3xl flex-col gap-3">
           {FAQS.map((f, i) => (
@@ -1098,7 +1098,7 @@ export default function HomePage() {
             Ready to Invest in Indian Markets?
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.6] text-mp-text-mut">
-            Join lakhs of investors who trust MarginPlant for fast execution, a
+            Join lakhs of investors who trust ProfitX for fast execution, a
             powerful platform and transparent, simple investing.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">

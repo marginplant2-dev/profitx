@@ -10,7 +10,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Index Options — Trade NIFTY, BANKNIFTY & SENSEX | MarginPlant",
+  title: "Index Options — Trade NIFTY, BANKNIFTY & SENSEX | ProfitX",
   description:
     "Trade NIFTY, BANKNIFTY and SENSEX index options on NSE & BSE with a live option chain, weekly and monthly expiries, and transparent SPAN + Exposure margins.",
 };

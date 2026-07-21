@@ -56,7 +56,7 @@ export function MarketingFooter() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/marginplant_logo_light_new.png"
-                alt="MarginPlant"
+                alt="ProfitX"
                 className="h-14 w-auto"
                 width={280}
                 height={56}
@@ -96,7 +96,7 @@ export function MarketingFooter() {
         {/* Compliance disclaimer (fixed copy) */}
         <div className="mt-12 border-t border-mp-border pt-8">
           <p className="max-w-4xl text-[12px] leading-relaxed text-mp-text-mut">
-            MarginPlant is a SEBI-registered stock broker offering trading and
+            ProfitX is a SEBI-registered stock broker offering trading and
             investing across NSE, BSE & MCX. Investments in the securities market
             are subject to market risks; read all the related documents carefully
             before investing. Nothing on this site is investment advice or a
@@ -104,7 +104,7 @@ export function MarketingFooter() {
             results. Trade only with money you can afford to lose.
           </p>
           <p className="mt-4 text-[12px] text-mp-text-mut">
-            © {year} MarginPlant. All rights reserved.
+            © {year} ProfitX. All rights reserved.
           </p>
         </div>
       </MpContainer>

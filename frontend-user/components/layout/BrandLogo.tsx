@@ -1,6 +1,6 @@
 "use client";
 
-import { Sprout } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useBranding } from "@/lib/branding-context";
@@ -46,7 +46,7 @@ export function BrandLogo({ href = "/dashboard", size = "md", iconOnly = false, 
             className={cn(sizes.img, "rounded object-contain")}
           />
         ) : (
-          <Sprout className={sizes.icon} strokeWidth={2.5} />
+          <TrendingUp className={sizes.icon} strokeWidth={2.5} />
         )}
       </span>
       {!iconOnly && (
@@ -54,8 +54,8 @@ export function BrandLogo({ href = "/dashboard", size = "md", iconOnly = false, 
           <span className="text-foreground">{customName}</span>
         ) : (
           <span>
-            <span className="text-primary">MarginPlant</span>
-            <span className="text-foreground"> Broker</span>
+            <span className="text-primary">Profit</span>
+            <span className="text-foreground">X</span>
           </span>
         )
       )}

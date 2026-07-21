@@ -12,17 +12,17 @@ import {
 const CHANNELS = [
   {
     label: "Support",
-    email: "support@marginplant.com",
+    email: "support@profitx.info",
     note: "for account, payout, and platform issues. Have your account ID ready.",
   },
   {
     label: "Affiliates & partnerships",
-    email: "partners@marginplant.com",
+    email: "partners@profitx.info",
     note: "for referrals, partnerships, and volume deals.",
   },
   {
     label: "Press / general",
-    email: "hello@marginplant.com",
+    email: "hello@profitx.info",
     note: "for everything else.",
   },
 ];

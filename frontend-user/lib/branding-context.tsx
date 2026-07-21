@@ -66,6 +66,8 @@ const Ctx = createContext<BrandingContextValue>({
 
 const PLATFORM_HOSTS = new Set<string>(
   [
+    "profitx.info",
+    "www.profitx.info",
     "marginplant.com",
     "www.marginplant.com",
     "localhost",

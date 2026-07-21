@@ -11,7 +11,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Paper / Virtual Trading — Practice Risk-Free on NSE, BSE & MCX | MarginPlant",
+  title: "Paper / Virtual Trading — Practice Risk-Free on NSE, BSE & MCX | ProfitX",
   description:
     "Practise on live NSE, BSE & MCX prices with virtual funds — no real money, learn risk-free. No KYC required to start paper trading.",
 };

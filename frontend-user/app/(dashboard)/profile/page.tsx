@@ -250,7 +250,7 @@ export default function ProfilePage() {
       <SignOutRow />
 
       <p className="px-1 pb-4 pt-2 text-center text-[10px] text-muted-foreground">
-        MarginPlant Broker · v1.0.0
+        ProfitX · v1.0.0
       </p>
     </div>
   );
@@ -677,10 +677,10 @@ function SupportLinks() {
   const { data: support } = useSupportContacts();
   const waUrl = buildWhatsappUrl(
     support?.whatsapp,
-    "Hi, I need help with my MarginPlant account",
+    "Hi, I need help with my ProfitX account",
   );
   const mailUrl = buildMailtoUrl(support?.email, {
-    subject: "MarginPlant support request",
+    subject: "ProfitX support request",
   });
   if (!waUrl && !mailUrl) {
     return (

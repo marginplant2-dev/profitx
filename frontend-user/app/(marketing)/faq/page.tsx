@@ -3,9 +3,9 @@ import { ArrowRight, Plus } from "lucide-react";
 import { MpButton, MpPageHero, MpSection } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "FAQs | MarginPlant — Trading & Investing on NSE, BSE & MCX",
+  title: "FAQs | ProfitX — Trading & Investing on NSE, BSE & MCX",
   description:
-    "Answers about MarginPlant: opening a Demat account, what you can trade, fund and securities safety, platforms, IPOs, mutual funds and charges.",
+    "Answers about ProfitX: opening a Demat account, what you can trade, fund and securities safety, platforms, IPOs, mutual funds and charges.",
 };
 
 const GROUPS: { heading: string; items: { q: string; a: string }[] }[] = [
@@ -30,7 +30,7 @@ const GROUPS: { heading: string; items: { q: string; a: string }[] }[] = [
     heading: "Trading",
     items: [
       {
-        q: "What can I trade on MarginPlant?",
+        q: "What can I trade on ProfitX?",
         a: "Equity Delivery and Intraday, Futures & Options, Commodities on MCX, IPOs and Mutual Funds — all from a single account.",
       },
       {
@@ -85,7 +85,7 @@ export default function FaqPage() {
       <MpPageHero
         eyebrow="FAQs"
         title="Frequently asked questions."
-        lead="Everything you need to know about trading and investing with MarginPlant. Can't find what you're looking for? Contact our team."
+        lead="Everything you need to know about trading and investing with ProfitX. Can't find what you're looking for? Contact our team."
       >
         <MpButton href="/contact" size="lg">
           Contact our team

@@ -94,14 +94,14 @@ export function MarketingNav() {
                   />
                 </span>
                 <span className="font-display text-lg font-bold tracking-tight text-black">
-                  {customName || "MarginPlant"}
+                  {customName || "ProfitX"}
                 </span>
               </>
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src="/marginplant_logo_dark_new.png"
-                alt="MarginPlant"
+                alt="ProfitX"
                 className="h-9 w-auto"
                 width={180}
                 height={36}

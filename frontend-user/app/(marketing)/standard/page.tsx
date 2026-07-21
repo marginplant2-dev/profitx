@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Standard Account — Demat + Trading for Everyone | MarginPlant",
+  title: "Standard Account — Demat + Trading for Everyone | ProfitX",
   description:
     "A complete Demat + trading account with access to Equity, Intraday, F&O and Commodities across NSE, BSE & MCX. Open your Standard Account in 5 minutes.",
 };
@@ -53,7 +53,7 @@ export default function StandardAccountPage() {
       <MpPageHero
         eyebrow="For Everyday Investors & Retail Traders"
         title="Standard Account"
-        lead="Start your investing journey with MarginPlant. A complete Demat + trading account with access to Equity, Intraday, F&O and Commodities across NSE, BSE & MCX."
+        lead="Start your investing journey with ProfitX. A complete Demat + trading account with access to Equity, Intraday, F&O and Commodities across NSE, BSE & MCX."
       >
         <MpButton href="/register" size="lg">
           Open Standard Account

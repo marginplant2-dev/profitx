@@ -19,7 +19,7 @@ export function generateMetadata({
   params: { slug: string };
 }): Metadata {
   const post = getPost(params.slug);
-  if (!post) return { title: "Post not found | MarginPlant" };
+  if (!post) return { title: "Post not found | ProfitX" };
   return { title: post.seoTitle, description: post.seoDescription };
 }
 

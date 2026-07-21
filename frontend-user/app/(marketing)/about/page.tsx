@@ -10,9 +10,9 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "About MarginPlant — A Transparent Stock Broker, Built in India",
+  title: "About ProfitX — A Transparent Stock Broker, Built in India",
   description:
-    "MarginPlant is a SEBI-registered stock broker built in India to give every investor professional-grade tools and honest, transparent pricing.",
+    "ProfitX is a SEBI-registered stock broker built in India to give every investor professional-grade tools and honest, transparent pricing.",
 };
 
 const BELIEFS = [
@@ -28,7 +28,7 @@ export default function AboutPage() {
       <MpPageHero
         eyebrow="About"
         title="A transparent stock broker, built in India."
-        lead="We're a team of traders and engineers in India who believe investing should be simple, transparent and fair. We built MarginPlant to give every Indian investor professional-grade tools and honest pricing across NSE, BSE & MCX."
+        lead="We're a team of traders and engineers in India who believe investing should be simple, transparent and fair. We built ProfitX to give every Indian investor professional-grade tools and honest pricing across NSE, BSE & MCX."
       >
         <MpButton href="/register" size="lg">
           Open Account
@@ -47,7 +47,7 @@ export default function AboutPage() {
             Most of us traded and invested in Indian markets for years before
             this. We were tired of platforms with hidden charges, confusing
             interfaces and support that never replied. When we sat down to build
-            MarginPlant, the goal was simple: build the broker we always wished
+            ProfitX, the goal was simple: build the broker we always wished
             we had.
           </MpProse>
           <MpProse>

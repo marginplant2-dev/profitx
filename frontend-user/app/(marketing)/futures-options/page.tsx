@@ -12,7 +12,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Futures & Options on NFO — Nifty, Bank Nifty & Stock F&O | MarginPlant",
+  title: "Futures & Options on NFO — Nifty, Bank Nifty & Stock F&O | ProfitX",
   description:
     "Trade index and stock derivatives on the NSE F&O segment with a live option chain and transparent SPAN + Exposure margins. Weekly and monthly expiries.",
 };
@@ -77,7 +77,7 @@ export default function FuturesOptionsPage() {
       <MpSection className="bg-mp-surface-2/60">
         <MpHeading
           eyebrow="Overview"
-          title="Why trade F&O with MarginPlant?"
+          title="Why trade F&O with ProfitX?"
         />
         <MpProse className="mt-6">
           Trade Nifty 50, Bank Nifty and single-stock futures and options on the
@@ -123,7 +123,7 @@ export default function FuturesOptionsPage() {
       <MpSection className="bg-mp-surface-2/60">
         <MpHeading
           align="center"
-          eyebrow="Why MarginPlant"
+          eyebrow="Why ProfitX"
           title="Why trade F&O with us"
         />
         <div className="mt-12 grid gap-5 lg:grid-cols-3">
@@ -150,7 +150,7 @@ export default function FuturesOptionsPage() {
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.6] text-mp-text-mut">
             Open your Demat &amp; trading account today and invest across NSE, BSE
-            &amp; MCX with MarginPlant.
+            &amp; MCX with ProfitX.
           </p>
           <div className="mt-9 flex justify-center">
             <MpButton href="/register" size="lg" className="w-full sm:w-auto">

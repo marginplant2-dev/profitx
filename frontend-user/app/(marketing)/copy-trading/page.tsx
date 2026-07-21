@@ -20,9 +20,9 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Partner & Sub-Broker Program — Earn Recurring Brokerage | MarginPlant",
+  title: "Partner & Sub-Broker Program — Earn Recurring Brokerage | ProfitX",
   description:
-    "Become an Authorised Person, sub-broker or referral partner with MarginPlant and earn a recurring share of brokerage by onboarding new clients.",
+    "Become an Authorised Person, sub-broker or referral partner with ProfitX and earn a recurring share of brokerage by onboarding new clients.",
 };
 
 const BENEFITS = [
@@ -106,7 +106,7 @@ export default function CopyTradingPage() {
       <MpPageHero
         eyebrow="Partner Program"
         title="Partner & Sub-Broker Program"
-        lead="Become an Authorised Person (AP), sub-broker, or referral partner with MarginPlant and earn a recurring share of brokerage by onboarding new clients. Build your broking business with our support."
+        lead="Become an Authorised Person (AP), sub-broker, or referral partner with ProfitX and earn a recurring share of brokerage by onboarding new clients. Build your broking business with our support."
       >
         <MpButton href="/contact" size="lg">
           Become a Partner

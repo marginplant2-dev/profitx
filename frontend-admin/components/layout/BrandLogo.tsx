@@ -1,6 +1,6 @@
 "use client";
 
-import { Sprout } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useAdminAuthStore } from "@/stores/authStore";
@@ -74,17 +74,17 @@ export function BrandLogo({ href = "/dashboard", size = "md", showAdminBadge = t
     />
   ) : (
     <span className={cn("rounded-md bg-primary/15 text-primary", sizes.badge)}>
-      <Sprout className={sizes.icon} strokeWidth={2.5} />
+      <TrendingUp className={sizes.icon} strokeWidth={2.5} />
     </span>
   );
 
   // Name block — tenant brand_name (single accent line) when set, else
-  // the two-tone "MarginPlant Broker" platform wordmark.
+  // the two-tone "ProfitX" platform wordmark.
   const nameBlock = tenantName ? (
     <span className="truncate text-foreground">{tenantName}</span>
   ) : (
     <span className="truncate text-foreground">
-      <span className="text-primary">MarginPlant</span> Broker
+      <span className="text-primary">Profit</span>X
     </span>
   );
 

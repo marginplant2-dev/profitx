@@ -28,10 +28,10 @@ export const revalidate = 0;
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
 const PLATFORM_DEFAULT = {
-  name: "MarginPlant Broker",
-  short_name: "MarginPlant",
+  name: "ProfitX",
+  short_name: "ProfitX",
   description:
-    "Trade Indian stocks, F&O, commodities, currencies, and crypto with MarginPlant Broker.",
+    "Trade Indian stocks, F&O, commodities, currencies, and crypto with ProfitX.",
   start_url: "/dashboard",
   scope: "/",
   display: "standalone",

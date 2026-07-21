@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Pricing — Transparent Brokerage on NSE, BSE & MCX | MarginPlant",
+  title: "Pricing — Transparent Brokerage on NSE, BSE & MCX | ProfitX",
   description:
     "Simple, transparent brokerage. Free equity delivery, flat per-order intraday & F&O charges, and zero fees on direct mutual funds and IPOs.",
 };

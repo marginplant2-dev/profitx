@@ -21,7 +21,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Trading Tutorials — Learn to Trade NSE, BSE & MCX | MarginPlant",
+  title: "Trading Tutorials — Learn to Trade NSE, BSE & MCX | ProfitX",
   description:
     "Learn to trade the Indian markets at your own pace with comprehensive video courses and tutorials — from stock-market basics to F&O and intraday strategies.",
 };
@@ -142,8 +142,8 @@ export default function EducationPage() {
       <MpSection className="bg-mp-surface-2/60">
         <MpHeading
           align="center"
-          eyebrow="Why MarginPlant"
-          title="Why Learn with MarginPlant?"
+          eyebrow="Why ProfitX"
+          title="Why Learn with ProfitX?"
         />
         <div className="mt-12 grid gap-5 lg:grid-cols-3">
           {WHY.map((w) => (

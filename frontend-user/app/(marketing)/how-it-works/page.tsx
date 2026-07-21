@@ -10,9 +10,9 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "How MarginPlant Works — Open an Account & Start Investing in 4 Steps",
+  title: "How ProfitX Works — Open an Account & Start Investing in 4 Steps",
   description:
-    "Open a Demat & trading account, add funds, pick your market and place your trade. Start investing across NSE, BSE & MCX with MarginPlant in minutes.",
+    "Open a Demat & trading account, add funds, pick your market and place your trade. Start investing across NSE, BSE & MCX with ProfitX in minutes.",
 };
 
 const STEPS = [
@@ -120,7 +120,7 @@ export default function HowItWorksPage() {
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.6] text-mp-text-mut">
             Open your Demat &amp; trading account today and invest across NSE, BSE
-            &amp; MCX with MarginPlant.
+            &amp; MCX with ProfitX.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <MpButton href="/register" size="lg" className="w-full sm:w-auto">

@@ -128,14 +128,14 @@ function AuthLayoutInner({ children }: { children: React.ReactNode }) {
         <>
           <BrandTile logoSrc={logoSrc} alt={tenantName || "Logo"} size="sm" />
           <span className="text-lg font-bold tracking-tight text-foreground">
-            {tenantName || "MarginPlant"}
+            {tenantName || "ProfitX"}
           </span>
         </>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src="/marginplant_logo_dark_new.png"
-          alt="MarginPlant"
+          alt="ProfitX"
           className="h-9 w-auto"
         />
       )}
@@ -167,7 +167,7 @@ function AuthLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="relative z-10 text-xs text-white/60">
-            &copy; {new Date().getFullYear()} {tenantName || "MarginPlant"} · All
+            &copy; {new Date().getFullYear()} {tenantName || "ProfitX"} · All
             rights reserved
           </div>
         </div>

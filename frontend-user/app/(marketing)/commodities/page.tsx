@@ -12,7 +12,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Trade Commodities on MCX — Gold, Silver & Crude Oil | MarginPlant",
+  title: "Trade Commodities on MCX — Gold, Silver & Crude Oil | ProfitX",
   description:
     "Diversify with Gold, Silver, Crude Oil and more on the Multi Commodity Exchange of India. Transparent SPAN + Exposure margins and extended evening sessions.",
 };
@@ -121,7 +121,7 @@ export default function CommoditiesPage() {
       <MpSection className="bg-mp-surface-2/60">
         <MpHeading
           align="center"
-          eyebrow="Why MarginPlant"
+          eyebrow="Why ProfitX"
           title="Why trade commodities with us"
         />
         <div className="mt-12 grid gap-5 lg:grid-cols-3">
@@ -148,7 +148,7 @@ export default function CommoditiesPage() {
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.6] text-mp-text-mut">
             Open your Demat &amp; trading account today and invest across NSE, BSE
-            &amp; MCX with MarginPlant.
+            &amp; MCX with ProfitX.
           </p>
           <div className="mt-9 flex justify-center">
             <MpButton href="/register" size="lg" className="w-full sm:w-auto">

@@ -11,7 +11,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Equity — Invest in Stocks on NSE & BSE | MarginPlant",
+  title: "Equity — Invest in Stocks on NSE & BSE | ProfitX",
   description:
     "Buy and sell shares of India's leading companies with lightning-fast execution. Equity delivery & intraday on NSE and BSE, T+1 settlement, 100% online.",
 };
@@ -95,7 +95,7 @@ export default function EquityPage() {
       <MpSection>
         <MpHeading
           eyebrow="Why equity"
-          title="Why Trade Equity with MarginPlant?"
+          title="Why Trade Equity with ProfitX?"
         />
         <MpProse className="mt-6">
           Trade equity delivery and intraday across NSE and BSE as a
@@ -135,7 +135,7 @@ export default function EquityPage() {
 
       {/* Why trade with us */}
       <MpSection>
-        <MpHeading eyebrow="Why MarginPlant" title="Why Trade with MarginPlant" />
+        <MpHeading eyebrow="Why ProfitX" title="Why Trade with ProfitX" />
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {FEATURES.map((f) => (
             <MpCard key={f.title} className="flex flex-col gap-4">
@@ -160,7 +160,7 @@ export default function EquityPage() {
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-[1.6] text-mp-text-mut">
             Open your Demat &amp; trading account today and invest across NSE,
-            BSE &amp; MCX with MarginPlant.
+            BSE &amp; MCX with ProfitX.
           </p>
           <div className="mt-9 flex justify-center">
             <MpButton href="/register" size="lg" className="w-full sm:w-auto">

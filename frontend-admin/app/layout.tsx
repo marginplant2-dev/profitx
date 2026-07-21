@@ -4,8 +4,8 @@ import { PwaRegister } from "@/components/common/PwaRegister";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "MarginPlant Broker Admin", template: "%s · MarginPlant Broker Admin" },
-  description: "Super-admin control panel for the MarginPlant Broker trading platform.",
+  title: { default: "ProfitX Admin", template: "%s · ProfitX Admin" },
+  description: "Super-admin control panel for the ProfitX trading platform.",
   icons: { icon: "/icon.svg" },
   // Dynamic manifest — served by app/manifest.webmanifest/route.ts.
   // AdminBrandingChrome rewrites this <link>'s href at runtime to

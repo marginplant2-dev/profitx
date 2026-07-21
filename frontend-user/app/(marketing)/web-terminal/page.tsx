@@ -18,9 +18,9 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "MarginPlant Web Terminal — Trade NSE, BSE & MCX in Your Browser",
+  title: "ProfitX Web Terminal — Trade NSE, BSE & MCX in Your Browser",
   description:
-    "No download required. Launch the MarginPlant Web Terminal from any browser and trade Indian markets in seconds — advanced charts, live option chain and all order types.",
+    "No download required. Launch the ProfitX Web Terminal from any browser and trade Indian markets in seconds — advanced charts, live option chain and all order types.",
 };
 
 const FEATURES = [
@@ -64,8 +64,8 @@ export default function WebTerminalPage() {
     <>
       <MpPageHero
         eyebrow="Web Platform"
-        title="MarginPlant Web Terminal — trade NSE, BSE & MCX instantly, anywhere"
-        lead="No download required. Launch the MarginPlant Web Terminal from any browser and start trading Indian markets in seconds."
+        title="ProfitX Web Terminal — trade NSE, BSE & MCX instantly, anywhere"
+        lead="No download required. Launch the ProfitX Web Terminal from any browser and start trading Indian markets in seconds."
       >
         <MpButton href="/register" size="lg">
           Launch Web Terminal
@@ -107,7 +107,7 @@ export default function WebTerminalPage() {
               title="Professional trading, simplified"
             />
             <MpProse className="mt-6">
-              The MarginPlant Web Terminal combines powerful tools with an
+              The ProfitX Web Terminal combines powerful tools with an
               intuitive interface. Whether you&apos;re a first-time investor or an
               active F&O trader, you&apos;ll find everything you need to invest in
               equity, derivatives and commodities.
@@ -131,7 +131,7 @@ export default function WebTerminalPage() {
               <span className="size-3 rounded-full bg-mp-gold/70" />
               <span className="size-3 rounded-full bg-mp-primary/70" />
               <span className="ml-3 text-xs font-medium text-mp-text-mut">
-                MarginPlant Web Terminal
+                ProfitX Web Terminal
               </span>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-3">
@@ -169,7 +169,7 @@ export default function WebTerminalPage() {
             </h2>
             <p className="mt-3 text-base leading-[1.6] text-mp-text-mut">
               Trade from your desktop, laptop, tablet, or smartphone — or switch
-              to the MarginPlant Mobile App (iOS &amp; Android). Your Demat
+              to the ProfitX Mobile App (iOS &amp; Android). Your Demat
               account syncs seamlessly across all devices.
             </p>
           </div>

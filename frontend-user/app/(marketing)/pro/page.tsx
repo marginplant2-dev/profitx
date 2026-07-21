@@ -11,7 +11,7 @@ import {
 } from "@/components/marketing/mp-ui";
 
 export const metadata: Metadata = {
-  title: "Pro / Active Trader Account — Priority Support & API Access | MarginPlant",
+  title: "Pro / Active Trader Account — Priority Support & API Access | ProfitX",
   description:
     "An account built for high-volume F&O and intraday traders — priority support, advanced tools and API/algo access designed for serious traders.",
 };

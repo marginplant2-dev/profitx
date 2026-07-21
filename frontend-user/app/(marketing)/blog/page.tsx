@@ -9,7 +9,7 @@ import {
 import { BLOG_CATEGORIES, BLOG_POSTS } from "./posts";
 
 export const metadata: Metadata = {
-  title: "The MarginPlant Blog — Investing, Markets & Risk Management",
+  title: "The ProfitX Blog — Investing, Markets & Risk Management",
   description:
     "Practical writing on getting started, trading Indian markets, managing risk and using the platform. No hype, no recycled tips.",
 };
