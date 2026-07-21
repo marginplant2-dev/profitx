@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
-import { PositionAPI, WalletAPI } from "@/lib/api";
+import { AccountStatsHeader } from "@/components/trading/AccountStatsHeader";
 import { MobileInstrumentsBar } from "@/components/trading/MobileInstrumentsBar";
 import { TradeDetailSheet } from "@/components/trading/TradeDetailSheet";
-import { cn, formatINR, pnlColor } from "@/lib/utils";
 
 /**
  * Markets page — browse + search every tradable instrument, star favorites,
@@ -22,100 +19,6 @@ type SeedQuote = {
   exchange?: string | null;
   segment?: string | null;
 } | null;
-
-/**
- * Collapsible account-stats header shown above the watchlist (matches the
- * terminal screenshot): Ledger Balance / Margin Available / Margin Used /
- * M2M in a 2×2 card grid, toggled by the "MarketWatch" title chevron.
- *
- * Reuses the SAME React Query keys the rest of the app already polls
- * (["wallet","summary"], ["positions","pnl-summary"]) so this adds no new
- * network load — it just reads the shared cache.
- */
-function MarketWatchStatsHeader() {
-  const [open, setOpen] = useState(true);
-
-  const { data: wallet } = useQuery<any>({
-    queryKey: ["wallet", "summary"],
-    queryFn: () => WalletAPI.summary(),
-    refetchInterval: 10_000,
-    staleTime: 5_000,
-    refetchOnWindowFocus: false,
-  });
-  const { data: pnl } = useQuery<any>({
-    queryKey: ["positions", "pnl-summary"],
-    queryFn: () => PositionAPI.pnlSummary(),
-    refetchInterval: 5_000,
-  });
-
-  const available = Number(wallet?.available_balance ?? 0);
-  const used = Number(wallet?.used_margin ?? wallet?.margin ?? 0);
-  const ledger = Number(wallet?.bal ?? available + used);
-  const m2m = Number(
-    pnl?.open_unrealised ??
-      pnl?.unrealized_pnl ??
-      wallet?.open_unrealized_pnl ??
-      0,
-  );
-
-  return (
-    <div className="shrink-0 border-b border-border bg-background px-3 pt-3">
-      {open && (
-        <div className="grid grid-cols-2 gap-2">
-          <Stat label="Ledger Balance" value={formatINR(ledger)} />
-          <Stat label="Margin Available" value={formatINR(available)} />
-          <Stat label="Margin Used" value={formatINR(used)} />
-          <Stat
-            label="M2M"
-            value={`${m2m >= 0 ? "+" : ""}${formatINR(m2m)}`}
-            valueClassName={pnlColor(m2m)}
-          />
-        </div>
-      )}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between py-2.5"
-      >
-        <span className="text-lg font-bold tracking-tight text-foreground">
-          MarketWatch
-        </span>
-        <ChevronDown
-          className={cn(
-            "size-5 text-muted-foreground transition-transform",
-            open && "rotate-180",
-          )}
-        />
-      </button>
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  valueClassName,
-}: {
-  label: string;
-  value: string;
-  valueClassName?: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border bg-card px-3 py-2">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div
-        className={cn(
-          "mt-0.5 font-tabular text-sm font-bold tabular-nums text-foreground",
-          valueClassName,
-        )}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
 
 export default function MarketsPage() {
   const [tradeToken, setTradeToken] = useState<string | null>(null);
@@ -144,9 +47,12 @@ export default function MarketsPage() {
           "calc(100dvh - 7rem - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
       }}
     >
-      {/* Account stats + "MarketWatch" title (collapsible). Screenshot-matched
-          header that sits above the instrument list. */}
-      <MarketWatchStatsHeader />
+      {/* Account stats + "MarketWatch" title (collapsible, open by default). */}
+      <AccountStatsHeader
+        title="MarketWatch"
+        defaultOpen
+        className="shrink-0 border-b border-border bg-background px-3 pt-3"
+      />
 
       {/* MobileInstrumentsBar is `h-full`, so wrap it in a flex-1 min-h-0
           box — it then fills exactly the space left under the stats header

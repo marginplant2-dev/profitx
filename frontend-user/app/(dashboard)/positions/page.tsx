@@ -23,6 +23,7 @@ import { DataTable, type Column } from "@/components/common/DataTable";
 
 import { StatusPill } from "@/components/common/StatusPill";
 import { TradeDetailSheet } from "@/components/trading/TradeDetailSheet";
+import { AccountStatsHeader } from "@/components/trading/AccountStatsHeader";
 import { cn, formatINR, formatIST, formatPrice, pnlColor } from "@/lib/utils";
 
 // Unified blotter tabs: Position (open) / Active (per-fill) / Closed
@@ -1326,53 +1327,26 @@ export default function PositionsPage() {
           of the old layout that stacked the button onto its own row below
           the title on phones. Tapping it opens a themed confirmation dialog
           rather than firing instantly. */}
-      <header className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-            Positions
-          </h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground/80">
-              {counts.position}
-            </span>{" "}
-            open
-            <span className="mx-1.5 text-border">·</span>
-            M2M{" "}
-            <span
-              className={cn(
-                "font-tabular font-semibold tabular-nums",
-                pnlColor(totalMtm),
-              )}
-            >
-              {totalMtm >= 0 ? "+" : ""}
-              {formatINR(totalMtm)}
-            </span>
-          </p>
-        </div>
-        <Button
-          variant="destructive"
-          disabled={!open?.length}
-          onClick={() => setConfirmAllOpen(true)}
-          className="h-9 shrink-0 gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm ring-1 ring-inset ring-white/10 sm:h-10 sm:px-4 sm:text-sm"
-        >
-          <Layers className="size-4" />
-          <span className="whitespace-nowrap">Square off all</span>
-        </Button>
-      </header>
-
-      {/* Wallet + margin status strip — Balance / Equity / M2M / Used.
-          CF Required (carry-forward margin estimate) used to live here
-          as a 5th tile but the user asked to drop it from the Positions
-          tab: it duplicates the per-row Holding Margin already on every
-          card and only matters when reviewing the carry-eligible legs.
-          We now hide it on the Position tab and show it on the Active
-          tab via `showCfRequired` so the wallet strip stays 4 tiles
-          where the trader is just looking at the net position view. */}
-      <WalletStatusStrip
-        wallet={wallet}
-        m2m={totalMtm}
-        cfRequired={requiredMargin}
-        showCfRequired={tab === "active"}
+      {/* Collapsible account stats — Ledger Balance / Margin Available /
+          Margin Used / M2M, the SAME four boxes as MarketWatch. Collapsed
+          by DEFAULT on Positions per the operator ("upar ke 4 box mat
+          dikhe by default"); the title chevron expands them. "Square off
+          all" stays pinned on the title row so the bulk-close action is
+          always one tap away. */}
+      <AccountStatsHeader
+        title="Position"
+        defaultOpen={false}
+        rightAction={
+          <Button
+            variant="destructive"
+            disabled={!open?.length}
+            onClick={() => setConfirmAllOpen(true)}
+            className="h-9 shrink-0 gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm ring-1 ring-inset ring-white/10"
+          >
+            <Layers className="size-4" />
+            <span className="whitespace-nowrap">Square off all</span>
+          </Button>
+        }
       />
 
       {/* Blotter tabs — Position / Active / Closed. Order-state tabs
