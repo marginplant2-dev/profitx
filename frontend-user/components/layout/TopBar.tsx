@@ -64,7 +64,7 @@ export function TopBar() {
   // cheaply). Solid bar = same look, no per-frame GPU cost.
   return (
     <header
-      className="sticky top-0 z-20 flex items-center gap-2 border-b border-border bg-background px-3 md:px-4"
+      className="sticky top-0 z-20 hidden items-center gap-2 border-b border-border bg-background px-3 md:flex md:px-4"
       style={{
         paddingTop: "env(safe-area-inset-top)",
         height: "calc(3.5rem + env(safe-area-inset-top))",

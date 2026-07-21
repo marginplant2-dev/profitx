@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Search, Star, X } from "lucide-react";
+import { Filter, Plus, Search, Star, Trash2, X } from "lucide-react";
 import { InstrumentAPI, MarketwatchAPI, SegmentSettingsAPI } from "@/lib/api";
 import { useMarketStream } from "@/lib/useMarketStream";
 import { cn, formatPrice, pnlColor } from "@/lib/utils";
-import { MobileOptionChain } from "@/components/trading/MobileOptionChain";
 
 interface Props {
   activeToken: string | null;
@@ -84,10 +83,10 @@ export function MobileInstrumentsBar({ activeToken, onSelect }: Props) {
   // zarurat nahi"). Kept as a const so the existing `expanded &&` query
   // gates below stay valid without a wider refactor.
   const [expanded] = useState(true);
-  // Top-level view toggle: the existing watchlist (default, unchanged) and
-  // the new Groww-style Options chain. The watchlist logic/queries below are
-  // untouched — the Options branch is purely additive.
-  const [view, setView] = useState<"watchlist" | "options">("watchlist");
+  // Search input ref — the "＋ Add" button / filter icon focus it so the
+  // user can type a symbol and add it from the results (the Options tab was
+  // removed per operator; option chain lives on /option-chain + the chart).
+  const searchRef = useRef<HTMLInputElement | null>(null);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [bucketKey, setBucketKey] = useState<string>("favorites");
@@ -349,7 +348,7 @@ export function MobileInstrumentsBar({ activeToken, onSelect }: Props) {
   // Options tab is showing (that view runs its own per-strike stream) — the
   // user can't see the watchlist rows, no point burning sockets / handlers.
   const streamQuotes = useMarketStream(
-    expanded && view === "watchlist" ? visibleTokens : [],
+    expanded ? visibleTokens : [],
   );
   const quoteByToken = useMemo(() => {
     const map = new Map<string, any>();
@@ -420,97 +419,100 @@ export function MobileInstrumentsBar({ activeToken, onSelect }: Props) {
           uppercase label + close on the right). The collapse chevron is
           kept so the user can shrink the strip on phones that have less
           vertical room. */}
-      <div className="flex shrink-0 items-center gap-4 border-b border-border px-3 py-2">
-        {(["watchlist", "options"] as const).map((v) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => setView(v)}
-            className="relative py-0.5"
-          >
-            <span
-              className={cn(
-                "text-sm font-bold transition-colors",
-                view === v ? "text-foreground" : "text-muted-foreground hover:text-foreground",
-              )}
+      {/* Segment tabs — WATCHLIST / INDEX-FUT / INDEX-OPT / STOCKFUT …
+          rendered as underline tabs (screenshot). Horizontally scrollable.
+          The old "Watchlist / Options" toggle + the Options chain view were
+          removed per operator; option chain now lives on /option-chain and
+          the chart's own option-chain tab. `chipRefs` + the scroll-into-view
+          effect keep the active tab centred on tap. */}
+      <div
+        ref={chipsScrollerRef}
+        className="scroll-smooth shrink-0 overflow-x-auto border-b border-border px-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <div className="flex gap-5">
+          {visibleBuckets.map((b) => (
+            <button
+              key={b.key}
+              type="button"
+              ref={(el) => {
+                if (el) chipRefs.current[b.key] = el;
+                else delete chipRefs.current[b.key];
+              }}
+              onClick={() => setBucketKey(b.key)}
+              className="relative shrink-0 whitespace-nowrap py-2.5"
             >
-              {v === "watchlist" ? "Watchlist" : "Options"}
-            </span>
-            {view === v && (
-              <span className="absolute -bottom-[9px] left-0 right-0 h-0.5 rounded-full bg-foreground" />
-            )}
-          </button>
-        ))}
+              <span
+                className={cn(
+                  "text-xs font-bold uppercase tracking-wide transition-colors",
+                  bucketKey === b.key
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {b.label}
+              </span>
+              {bucketKey === b.key && (
+                <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-primary" />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {expanded && view === "options" && <MobileOptionChain onSelect={onSelect} />}
-
-      {expanded && view === "watchlist" && (
+      {expanded && (
         <>
-          <div className="shrink-0 space-y-2 border-b border-border px-3 py-2">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search symbols..."
-                className="h-8 w-full rounded-md border border-border bg-background pl-7 pr-7 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
-              />
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch("")}
-                  aria-label="Clear search"
-                  className="absolute right-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-muted/40 hover:text-foreground"
-                >
-                  <X className="size-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* Segment chips — horizontally scrollable strip. Hides the
-                scrollbar entirely (touch-friendly), uses snap-x so a swipe
-                lands the next chip cleanly aligned at the leading edge,
-                and a fade-mask on the right indicates more chips are
-                available off-screen. Larger touch target (h-7, px-3)
-                makes the chips comfortable to tap on phones. `scroll-smooth`
-                + `scrollIntoView` on the active chip below means a tap on
-                a partially-clipped chip smoothly centres it instead of
-                jumping abruptly to the snap point. */}
-            <div
-              ref={chipsScrollerRef}
-              className="scroll-smooth -mx-3 overflow-x-auto overscroll-x-contain px-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-              style={{
-                maskImage:
-                  "linear-gradient(to right, black 0%, black calc(100% - 24px), transparent 100%)",
-                WebkitMaskImage:
-                  "linear-gradient(to right, black 0%, black calc(100% - 24px), transparent 100%)",
-                WebkitOverflowScrolling: "touch",
-              }}
-            >
-              <div className="flex snap-x gap-1.5">
-                {visibleBuckets.map((b) => (
+          {/* Search row + filter / delete / Add (screenshot). Search is the
+              primary add flow: type a symbol, then tap its star in the list
+              to add it. The blue "Add" button and the filter icon focus the
+              search; the trash icon clears it. */}
+          <div className="shrink-0 border-b border-border px-3 py-2">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  ref={searchRef}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search symbols..."
+                  className="h-9 w-full rounded-lg border border-border bg-background pl-8 pr-8 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                />
+                {search && (
                   <button
-                    key={b.key}
                     type="button"
-                    ref={(el) => {
-                      if (el) chipRefs.current[b.key] = el;
-                      else delete chipRefs.current[b.key];
-                    }}
-                    onClick={() => setBucketKey(b.key)}
-                    className={cn(
-                      // uppercase keeps Infoway chips ("Forex", "Stocks", …)
-                      // visually consistent with Zerodha chips ("NSE EQ" etc).
-                      "h-8 shrink-0 snap-center whitespace-nowrap rounded-full border px-3.5 text-[12px] font-bold uppercase tracking-wide transition-colors",
-                      bucketKey === b.key
-                        ? "border-primary bg-primary/15 text-primary"
-                        : "border-border text-foreground/70 hover:bg-muted/40 hover:text-foreground",
-                    )}
+                    onClick={() => setSearch("")}
+                    aria-label="Clear search"
+                    className="absolute right-1.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-muted/40 hover:text-foreground"
                   >
-                    {b.label}
+                    <X className="size-3.5" />
                   </button>
-                ))}
+                )}
               </div>
+              <button
+                type="button"
+                onClick={() => searchRef.current?.focus()}
+                aria-label="Filter"
+                title="Filter"
+                className="grid size-9 shrink-0 place-items-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+              >
+                <Filter className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Clear"
+                title="Clear search"
+                className="grid size-9 shrink-0 place-items-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+              >
+                <Trash2 className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => searchRef.current?.focus()}
+                className="flex h-9 shrink-0 items-center gap-1 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <Plus className="size-4" /> Add
+              </button>
             </div>
           </div>
 

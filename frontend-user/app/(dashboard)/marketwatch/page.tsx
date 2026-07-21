@@ -43,14 +43,20 @@ export default function MarketsPage() {
     <div
       className="-mx-4 -mt-4 -mb-24 flex flex-col md:mx-0 md:mt-0 md:mb-0 md:h-[calc(100vh-7rem)] md:min-h-[480px]"
       style={{
+        // Mobile: TopBar is now hidden (operator removed it), so only the
+        // fixed BottomNav (h-14 = 3.5rem) is subtracted, plus the safe-area
+        // insets. Desktop keeps the 7rem md: height (TopBar + StatusBar).
         height:
-          "calc(100dvh - 7rem - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+          "calc(100dvh - 3.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+        paddingTop: "env(safe-area-inset-top)",
       }}
     >
-      {/* Account stats + "MarketWatch" title (collapsible, open by default). */}
+      {/* Account stats + "MarketWatch" title (collapsible, COLLAPSED by
+          default per operator — the four boxes stay hidden until the title
+          chevron is tapped). */}
       <AccountStatsHeader
         title="MarketWatch"
-        defaultOpen
+        defaultOpen={false}
         className="shrink-0 border-b border-border bg-background px-3 pt-3"
       />
 
