@@ -131,6 +131,26 @@ export default function WalletPage() {
     setWithdrawOpen(true);
   }
 
+  // Deep-link: /wallet?open=deposit | ?open=withdraw opens that flow
+  // directly on mount. Used by the DemoAccount "Add Funds" / "Withdraw"
+  // quick actions so a single tap lands on the open dialog instead of the
+  // wallet page's own button. Demo accounts route through the same
+  // openDeposit/openWithdraw → DemoUpgradeDialog. Read from
+  // window.location (not useSearchParams) to avoid a Suspense boundary.
+  const didAutoOpen = useRef(false);
+  useEffect(() => {
+    if (didAutoOpen.current || typeof window === "undefined") return;
+    const which = new URLSearchParams(window.location.search).get("open");
+    if (which === "deposit") {
+      didAutoOpen.current = true;
+      openDeposit();
+    } else if (which === "withdraw") {
+      didAutoOpen.current = true;
+      openWithdraw();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // ── Form state ──────────────────────────────────────────────────
   const [dep, setDep] = useState({
     amount: "",

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Inbox, Layers, Lock, LogOut, Pencil, Shield, Target, X } from "lucide-react";
+import { Inbox, Layers, Lock, LogOut, Pencil, Search, Shield, ShoppingCart, Target, X } from "lucide-react";
 import { OrderAPI, PositionAPI, WalletAPI } from "@/lib/api";
 import { useMarketStream } from "@/lib/useMarketStream";
 import { usePriceFlash } from "@/lib/usePriceFlash";
@@ -230,6 +230,17 @@ export default function PositionsPage() {
   // Confirmation dialog for the header "Square off all" action. Opens on
   // tap (mobile + desktop); the actual squareoff fires only on confirm.
   const [confirmAllOpen, setConfirmAllOpen] = useState(false);
+  // Header search — the search icon (replaced "Square off all") toggles an
+  // inline symbol filter over the mobile position / active card lists.
+  const [posSearchOpen, setPosSearchOpen] = useState(false);
+  const [posQuery, setPosQuery] = useState("");
+  const posFilter = (rows: any[]) => {
+    const q = posQuery.trim().toUpperCase();
+    if (!q) return rows;
+    return rows.filter((r) =>
+      String(r?.symbol ?? "").toUpperCase().includes(q),
+    );
+  };
   // Row pending the themed single-close confirmation card (desktop only).
   const [closeRow, setCloseRow] = useState<any | null>(null);
 
@@ -1337,17 +1348,43 @@ export default function PositionsPage() {
         title="Position"
         defaultOpen={false}
         rightAction={
-          <Button
-            variant="destructive"
-            disabled={!open?.length}
-            onClick={() => setConfirmAllOpen(true)}
-            className="h-9 shrink-0 gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm ring-1 ring-inset ring-white/10"
+          <button
+            type="button"
+            onClick={() => setPosSearchOpen((v) => !v)}
+            aria-label="Search positions"
+            className={cn(
+              "grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground",
+              posSearchOpen && "bg-muted/40 text-foreground",
+            )}
           >
-            <Layers className="size-4" />
-            <span className="whitespace-nowrap">Square off all</span>
-          </Button>
+            <Search className="size-5" />
+          </button>
         }
       />
+
+      {/* Inline symbol filter, toggled by the header search icon. */}
+      {posSearchOpen && (
+        <div className="relative -mt-1">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            autoFocus
+            value={posQuery}
+            onChange={(e) => setPosQuery(e.target.value)}
+            placeholder="Search by symbol..."
+            className="h-9 w-full rounded-lg border border-border bg-background pl-8 pr-8 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+          />
+          {posQuery && (
+            <button
+              type="button"
+              onClick={() => setPosQuery("")}
+              aria-label="Clear search"
+              className="absolute right-1.5 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Blotter tabs — Position / Active / Closed. Order-state tabs
           (Pending / Cancelled / Rejected) now live on the dedicated
@@ -1357,16 +1394,8 @@ export default function PositionsPage() {
           bunched on the left; md+ falls back to left-aligned underline
           tabs. */}
       <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-border/40 md:flex md:items-center md:gap-6 md:rounded-none md:bg-transparent md:p-0 md:ring-0 md:border-b md:border-border">
-        <TabBtn
-          active={tab === "position"}
-          count={counts.position}
-          onClick={() => setTab("position")}
-        >
-          Position
-        </TabBtn>
-        <TabBtn active={tab === "active"} count={counts.active} onClick={() => setTab("active")}>
-          Active
-        </TabBtn>
+        {/* Tab order per operator: Closed · Position · Active. Position stays
+            the default open tab (see `useState("position")`). */}
         <TabBtn
           active={tab === "closed"}
           count={counts.closed}
@@ -1385,6 +1414,16 @@ export default function PositionsPage() {
           }}
         >
           Closed
+        </TabBtn>
+        <TabBtn
+          active={tab === "position"}
+          count={counts.position}
+          onClick={() => setTab("position")}
+        >
+          Position
+        </TabBtn>
+        <TabBtn active={tab === "active"} count={counts.active} onClick={() => setTab("active")}>
+          Active
         </TabBtn>
         {/* Pending / Cancelled / Rejected tabs moved to the dedicated
             /orders page (Open / Executed / Rejected) per the operator —
@@ -1427,7 +1466,7 @@ export default function PositionsPage() {
           <div className="md:hidden">
             <ActiveMobileList
               variant="active"
-              rows={(activeTrades ?? []) as any[]}
+              rows={posFilter((activeTrades ?? []) as any[])}
               loading={activeLoading && !activeTrades}
               liveLtpFor={liveLtpFor}
               onEdit={(row, kind) => setEditing({ row, kind, source: "active" })}
@@ -1451,7 +1490,7 @@ export default function PositionsPage() {
           <div className="md:hidden">
             <ActiveMobileList
               variant="position"
-              rows={(open ?? []) as any[]}
+              rows={posFilter((open ?? []) as any[])}
               loading={openLoading && !open}
               liveLtpFor={liveLtpFor}
               onEdit={(row, kind) => setEditing({ row, kind, source: "position" })}
@@ -2329,11 +2368,9 @@ function ActiveMobileCard({
       />
 
       {variant === "position" ? (
-        /* ── POSITION card — premium broker-grade layout (Exness/Bybit-style
-            reference). Row 1: side badge + symbol · live P&L + lock. Row 2:
-            qty · product · time. Divider. Entry / LTP rows. Then ONE row of
-            three equal outline buttons: TP (green) · SL (amber) · EXIT (red),
-            each with a react (lucide) icon. */
+        /* ── POSITION card — compact screenshot layout. Line 1: side badge +
+            cart-qty · time badge (tinted by P&L sign). Line 2: symbol · live
+            P&L. Line 3: segment · Avg | LTP. Then a small SL / TP button row. */
         <>
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
@@ -2347,106 +2384,102 @@ function ActiveMobileCard({
               >
                 {side}
               </span>
+              <span className="flex items-center gap-1 font-tabular text-[11px] text-muted-foreground">
+                <ShoppingCart className="size-3.5" />
+                <span className="font-semibold tabular-nums text-foreground/80">
+                  {side === "SELL" ? "-" : ""}
+                  {fmtQty(qty)}
+                </span>
+              </span>
+            </div>
+            <span
+              className={cn(
+                "rounded-md px-2 py-0.5 font-tabular text-[10px] font-semibold tabular-nums",
+                pnl < 0 ? "bg-sell/15 text-sell" : "bg-primary/15 text-primary",
+              )}
+            >
+              {timeOnly(ts)}
+            </span>
+          </div>
+
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-1.5">
               <span className="truncate text-[15px] font-bold leading-tight">
                 {r.symbol}
               </span>
-            </div>
-            <div className="flex shrink-0 items-center gap-1.5">
-              <span
-                className={cn(
-                  "font-tabular text-[15px] font-bold tabular-nums",
-                  pnlColor(pnl),
-                )}
-              >
-                {pnl >= 0 ? "+" : ""}
-                {formatINR(pnl)}
-              </span>
               {marketClosed ? (
-                <Lock className="size-3.5 text-muted-foreground/70" />
+                <Lock className="size-3.5 shrink-0 text-muted-foreground/70" />
               ) : null}
             </div>
-          </div>
-
-          <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span>
-              <span className="opacity-70">Qty</span>{" "}
-              <span className="font-semibold text-foreground/80">{fmtQty(qty)}</span>
+            <span
+              className={cn(
+                "shrink-0 font-tabular text-[15px] font-bold tabular-nums",
+                pnlColor(pnl),
+              )}
+            >
+              {pnl >= 0 ? "+" : ""}
+              {formatINR(pnl)}
             </span>
-            <span className="opacity-40">•</span>
-            <span className="font-semibold uppercase tracking-wide">{r.product_type}</span>
-            <span className="opacity-40">•</span>
-            <span className="font-tabular">{timeOnly(ts)}</span>
-            {expiry ? (
-              <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-primary">
-                Exp {expiry}
-              </span>
-            ) : null}
           </div>
 
-          <div className="my-2.5 border-t border-border/60" />
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">Entry</span>
-              <span className="font-tabular text-sm font-bold tabular-nums text-foreground">
+          <div className="mt-1 flex items-center justify-between gap-2 text-[11px]">
+            <div className="flex min-w-0 items-center gap-1.5 uppercase tracking-wide text-muted-foreground">
+              <span className="truncate">{seg}</span>
+              {expiry ? (
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                  {expiry}
+                </span>
+              ) : null}
+            </div>
+            <div className="shrink-0 font-tabular tabular-nums text-muted-foreground">
+              <span className="opacity-70">Avg:</span>{" "}
+              <span className="text-foreground/80">
                 {fmtFeedPrice(entry, r.currency_quote, seg, r.exchange)}
               </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">LTP</span>
-              <span
-                className={cn(
-                  "font-tabular text-sm font-bold tabular-nums",
-                  pnlColor(pnl),
-                )}
-              >
+              <span className="mx-1 opacity-40">|</span>
+              <span className="opacity-70">LTP:</span>{" "}
+              <span className={cn("text-foreground/80", pnlColor(pnl))}>
                 {fmtFeedPrice(ltp, r.currency_quote, seg, r.exchange)}
               </span>
             </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            {/* TP — green outline. Shows the level when set, else "TP". */}
-            <button
-              type="button"
-              onClick={(e) => {
-                // stopPropagation so a single tap doesn't ALSO open the
-                // tap-anywhere trade sheet on the card wrapper.
-                e.stopPropagation();
-                onEdit(r, "TP");
-              }}
-              className="flex h-9 items-center justify-center gap-1.5 rounded-[10px] border border-buy/40 bg-buy/5 px-1 text-xs font-bold text-buy transition-colors hover:bg-buy/15 active:scale-[0.98]"
-            >
-              <Target className="size-3.5" />
-              <span className="font-tabular tabular-nums">
-                {r.target ? Number(r.target).toFixed(2) : "TP"}
-              </span>
-            </button>
-            {/* SL — amber/orange outline. */}
+          {/* Small SL / TP buttons (operator: "bs small sa SL TP button").
+              Both open the same edit dialog via onEdit; stopPropagation so a
+              tap here doesn't also open the tap-anywhere trade sheet. Exit is
+              still reachable by tapping the card (opens the trade sheet). */}
+          <div className="mt-2.5 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(r, "SL");
               }}
-              className="flex h-9 items-center justify-center gap-1.5 rounded-[10px] border border-amber-500/45 bg-amber-500/5 px-1 text-xs font-bold text-amber-600 transition-colors hover:bg-amber-500/15 active:scale-[0.98] dark:text-amber-400"
+              className="flex h-7 items-center gap-1 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
             >
               <Shield className="size-3.5" />
-              <span className="font-tabular tabular-nums">
-                {r.stop_loss ? Number(r.stop_loss).toFixed(2) : "SL"}
-              </span>
+              SL
+              {r.stop_loss ? (
+                <span className="font-tabular tabular-nums text-foreground/80">
+                  {Number(r.stop_loss).toFixed(2)}
+                </span>
+              ) : null}
             </button>
-            {/* EXIT — red outline. */}
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                onExit(r.id);
+                onEdit(r, "TP");
               }}
-              className="flex h-9 items-center justify-center gap-1.5 rounded-[10px] border border-sell/45 bg-sell/5 px-1 text-xs font-bold text-sell transition-colors hover:bg-sell hover:text-white active:scale-[0.98]"
+              className="flex h-7 items-center gap-1 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
             >
-              <LogOut className="size-3.5" />
-              EXIT
+              <Target className="size-3.5" />
+              TP
+              {r.target ? (
+                <span className="font-tabular tabular-nums text-foreground/80">
+                  {Number(r.target).toFixed(2)}
+                </span>
+              ) : null}
             </button>
           </div>
         </>

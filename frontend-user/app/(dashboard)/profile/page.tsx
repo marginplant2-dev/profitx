@@ -167,28 +167,30 @@ export default function ProfilePage() {
           screenshot. Balance reads the shared wallet cache; the buttons
           route to the existing /wallet flows (withdraw form + add-funds
           wizard) so no money logic is duplicated here. */}
-      <section className="rounded-2xl border border-border bg-card p-4">
-        <div className="flex items-center gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-buy/12 text-buy">
-            <Shield className="size-5" />
+      <section className="rounded-xl border border-border bg-card p-3">
+        <div className="flex items-center gap-2.5">
+          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-buy/12 text-buy">
+            <Shield className="size-4" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Margin Available
             </div>
-            <div className="font-tabular text-lg font-bold tabular-nums text-buy">
+            <div className="font-tabular text-base font-bold tabular-nums text-buy">
               {formatINR(marginAvailable)}
             </div>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <Button asChild variant="outline" className="h-11">
-            <Link href="/wallet#withdraw">
+        <div className="mt-3 grid grid-cols-2 gap-2.5">
+          {/* Deep-link straight into the deposit / withdraw flow so a single
+              tap opens it (no second tap on the wallet page). */}
+          <Button asChild variant="outline" className="h-10">
+            <Link href="/wallet?open=withdraw">
               <ArrowUp className="size-4" /> Withdraw
             </Link>
           </Button>
-          <Button asChild className="h-11">
-            <Link href="/wallet">
+          <Button asChild className="h-10">
+            <Link href="/wallet?open=deposit">
               <ArrowDown className="size-4" /> Add Funds
             </Link>
           </Button>
@@ -327,27 +329,21 @@ function ProfileHeader({ me }: { me: any }) {
     .join("")
     .toUpperCase();
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="relative px-5 pt-6 pb-5">
-        {/* Subtle gradient backdrop — not the full purple band the user
-            disliked. Keeps brand presence while letting text breathe. */}
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent pointer-events-none" />
-        <div className="relative flex items-center gap-4">
-          <div className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary text-xl font-bold text-primary-foreground shadow-md ring-2 ring-card">
-            {initials}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-semibold">{me.full_name}</h1>
-            <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-              <span className="font-mono font-medium text-foreground">{me.user_code}</span>
-              {" · "}
-              {me.email}
-            </p>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <Pill tone={me.status === "ACTIVE" ? "buy" : "muted"}>{me.status}</Pill>
-              <Pill tone="primary">{me.role}</Pill>
-              {me.is_demo && <Pill tone="warn">DEMO</Pill>}
-            </div>
+    // Compact header (operator: "box small kar", "upar id ka gmail mat
+    // dikha") — avatar + name + status badges only. Client-id / email line
+    // removed.
+    <section className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="relative flex items-center gap-3 px-3.5 py-3">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-br from-primary/25 via-primary/10 to-transparent" />
+        <div className="relative grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-base font-bold text-primary-foreground shadow-sm ring-2 ring-card">
+          {initials}
+        </div>
+        <div className="relative min-w-0 flex-1">
+          <h1 className="truncate text-[15px] font-bold leading-tight">{me.full_name}</h1>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <Pill tone={me.status === "ACTIVE" ? "buy" : "muted"}>{me.status}</Pill>
+            <Pill tone="primary">{me.role}</Pill>
+            {me.is_demo && <Pill tone="warn">DEMO</Pill>}
           </div>
         </div>
       </div>

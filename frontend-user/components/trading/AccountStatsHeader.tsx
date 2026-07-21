@@ -66,18 +66,24 @@ export function AccountStatsHeader({
           />
         </div>
       )}
-      <div className="flex items-center justify-between gap-2 py-2.5">
+      <div className="flex items-center gap-2 py-2.5">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className={cn(
-            "flex items-center gap-2",
-            !rightAction && "w-full justify-between",
-          )}
+          aria-label="Toggle account stats"
+          className="flex flex-1 items-center text-left"
         >
           <span className="text-lg font-bold tracking-tight text-foreground">
             {title}
           </span>
+        </button>
+        {rightAction}
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Hide account stats" : "Show account stats"}
+          className="-mr-1 shrink-0 p-1"
+        >
           <ChevronDown
             className={cn(
               "size-5 text-muted-foreground transition-transform",
@@ -85,7 +91,6 @@ export function AccountStatsHeader({
             )}
           />
         </button>
-        {rightAction}
       </div>
     </div>
   );
