@@ -1393,7 +1393,7 @@ export default function PositionsPage() {
           (segmented-control look) so they're evenly spaced instead of
           bunched on the left; md+ falls back to left-aligned underline
           tabs. */}
-      <div className="grid grid-cols-3 gap-1 rounded-xl bg-muted/20 p-1 ring-1 ring-inset ring-border/40 md:flex md:items-center md:gap-6 md:rounded-none md:bg-transparent md:p-0 md:ring-0 md:border-b md:border-border">
+      <div className="flex items-center gap-6 border-b border-border">
         {/* Tab order per operator: Closed · Position · Active. Position stays
             the default open tab (see `useState("position")`). */}
         <TabBtn
@@ -1430,6 +1430,26 @@ export default function PositionsPage() {
             this blotter now stays focused on Position / Active / Closed. */}
       </div>
 
+      {/* Floating P&L summary box (screenshot) — centered above the list on
+          the live tabs (Position / Active). Uses `totalMtm`, the same live
+          net M2M the rows sum to. Hidden on Closed (historical). */}
+      {(tab === "position" || tab === "active") && (
+        <div className="rounded-xl border border-border bg-card px-4 py-3 text-center">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Total P&amp;L
+          </div>
+          <div
+            className={cn(
+              "mt-0.5 font-tabular text-xl font-bold tabular-nums",
+              pnlColor(totalMtm),
+            )}
+          >
+            {totalMtm >= 0 ? "+" : ""}
+            {formatINR(totalMtm)}
+          </div>
+        </div>
+      )}
+
       {/* Closed + Active tabs render a mobile-friendly card list at
           `<md` and the full DataTable from `md+`. Other tabs use the
           table on every breakpoint — they're already compact enough to
@@ -1465,7 +1485,7 @@ export default function PositionsPage() {
         <>
           <div className="md:hidden">
             <ActiveMobileList
-              variant="active"
+              variant="position"
               rows={posFilter((activeTrades ?? []) as any[])}
               loading={activeLoading && !activeTrades}
               liveLtpFor={liveLtpFor}
@@ -1794,10 +1814,10 @@ function TabBtn({
         // pill with primary text. Inactive = foreground text (not muted) so
         // all tab labels stay readable.
         // Desktop (md+): content-width, left-aligned, classic underline.
-        "relative -mb-px flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-sm font-medium transition-all md:w-auto md:shrink-0 md:justify-start md:rounded-none md:px-0 md:pb-2 md:pt-1 md:font-normal",
+        "relative -mb-px flex shrink-0 items-center gap-1.5 whitespace-nowrap px-0 pb-2 pt-1 text-sm font-medium transition-colors",
         active
-          ? "bg-primary/15 font-semibold text-primary shadow-sm md:bg-transparent md:text-foreground md:shadow-none"
-          : "text-foreground/70 hover:bg-muted/40 hover:text-foreground md:hover:bg-transparent md:text-muted-foreground",
+          ? "text-foreground"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       {children}
@@ -1814,7 +1834,7 @@ function TabBtn({
         </span>
       )}
       {active && (
-        <span className="absolute inset-x-0 -bottom-px hidden h-0.5 rounded-t bg-primary md:block" />
+        <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-t bg-primary" />
       )}
     </button>
   );
@@ -1969,7 +1989,7 @@ function ClosedMobileList({ rows, loading }: { rows: any[]; loading: boolean }) 
     );
   }
   return (
-    <ul className="space-y-3">
+    <ul className="divide-y divide-border/60">
       {rows.map((r) => (
         <ClosedMobileCard key={r.id} row={r} />
       ))}
@@ -2025,7 +2045,7 @@ function ClosedMobileCard({ row: r }: { row: any }) {
   }
 
   return (
-    <li className="group relative overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-card to-card/60 p-3.5 shadow-sm ring-1 ring-inset ring-white/5">
+    <li className="relative px-3 py-3">
       {/* Subtle accent stripe — BUY = green, SELL = red. Same visual
           language as Active/Position cards for consistency. */}
       <span
@@ -2238,7 +2258,7 @@ function ActiveMobileList({
     );
   }
   return (
-    <ul className="space-y-3">
+    <ul className="divide-y divide-border/60">
       {rows.map((r) => {
         // Pass side so the helper returns BID for BUY rows, ASK for
         // SELL — the same close-side price the matching engine fills
@@ -2352,8 +2372,11 @@ function ActiveMobileCard({
   return (
     <li
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-card to-card/60 p-3.5 shadow-sm ring-1 ring-inset ring-white/5",
-        cardOpensTrade && "cursor-pointer transition-all hover:border-primary/40 hover:shadow-md active:scale-[0.997]",
+        // Flat row (operator: "card me andar mat rakh, normally type se
+        // rakh") — no box/border/gradient; the list's divide-y draws the
+        // separators. A left accent stripe still marks BUY/SELL.
+        "relative px-3 py-3",
+        cardOpensTrade && "cursor-pointer transition-colors hover:bg-muted/20 active:bg-muted/30",
       )}
       onClick={cardOpensTrade ? () => onTrade!(tradeToken) : undefined}
     >
@@ -2444,44 +2467,6 @@ function ActiveMobileCard({
             </div>
           </div>
 
-          {/* Small SL / TP buttons (operator: "bs small sa SL TP button").
-              Both open the same edit dialog via onEdit; stopPropagation so a
-              tap here doesn't also open the tap-anywhere trade sheet. Exit is
-              still reachable by tapping the card (opens the trade sheet). */}
-          <div className="mt-2.5 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(r, "SL");
-              }}
-              className="flex h-7 items-center gap-1 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
-            >
-              <Shield className="size-3.5" />
-              SL
-              {r.stop_loss ? (
-                <span className="font-tabular tabular-nums text-foreground/80">
-                  {Number(r.stop_loss).toFixed(2)}
-                </span>
-              ) : null}
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(r, "TP");
-              }}
-              className="flex h-7 items-center gap-1 rounded-lg border border-border px-2.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
-            >
-              <Target className="size-3.5" />
-              TP
-              {r.target ? (
-                <span className="font-tabular tabular-nums text-foreground/80">
-                  {Number(r.target).toFixed(2)}
-                </span>
-              ) : null}
-            </button>
-          </div>
         </>
       ) : (
         /* ── ACTIVE card — UNCHANGED. Original top + margins + TP/SL/Exit. */
@@ -2674,7 +2659,7 @@ function PendingOrderCard({
   const ts = o?.created_at ?? o?.placed_at ?? null;
   const status = String(o?.status ?? "").toUpperCase();
   return (
-    <li className="group relative overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-card to-card/60 p-3.5 shadow-sm ring-1 ring-inset ring-white/5">
+    <li className="relative px-3 py-3">
       <span
         aria-hidden
         className={cn(
