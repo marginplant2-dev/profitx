@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Inbox, Layers, Lock, LogOut, Pencil, Search, Shield, ShoppingCart, Target, X } from "lucide-react";
-import { OrderAPI, PositionAPI, WalletAPI } from "@/lib/api";
+import { ArrowDown, ArrowUp, Inbox, Layers, Lock, LogOut, Pencil, Search, Shield, ShoppingCart, Target, X } from "lucide-react";
+import { InstrumentAPI, OrderAPI, PositionAPI, WalletAPI } from "@/lib/api";
 import { useMarketStream } from "@/lib/useMarketStream";
 import { usePriceFlash } from "@/lib/usePriceFlash";
 import { isInstrumentMarketOpen } from "@/lib/marketHours";
@@ -24,7 +24,7 @@ import { DataTable, type Column } from "@/components/common/DataTable";
 import { StatusPill } from "@/components/common/StatusPill";
 import { TradeDetailSheet } from "@/components/trading/TradeDetailSheet";
 import { AccountStatsHeader } from "@/components/trading/AccountStatsHeader";
-import { cn, formatINR, formatIST, formatPrice, pnlColor } from "@/lib/utils";
+import { cn, formatINR, formatIST, formatPercent, formatPrice, pnlColor } from "@/lib/utils";
 
 // Unified blotter tabs: Position (open) / Active (per-fill) / Closed
 // (today's realised) / Cancelled (orders) / Rejected (orders). Replaces
@@ -224,6 +224,12 @@ export default function PositionsPage() {
   // potion ko click karne par bhi same buy/sell ke liye card open
   // ho jaisa option chain me kiya hai".
   const [sheetToken, setSheetToken] = useState<string | null>(null);
+  // Which side the trade sheet opens on (Add More → BUY, Partial Exit → SELL).
+  const [sheetSide, setSheetSide] = useState<"BUY" | "SELL">("BUY");
+  // Tapping a position/active row opens THIS position-summary sheet first
+  // (BID/ASK · OHLC · Current P&L · Exit All / Add More / Partial Exit).
+  // Add More / Partial Exit then open the order sheet (TradeDetailSheet).
+  const [posSheetRow, setPosSheetRow] = useState<any | null>(null);
   // Pending-order edit dialog state. Set when the user taps the pencil
   // on a pending order card; cleared on cancel / successful save.
   const [editingPending, setEditingPending] = useState<any | null>(null);
@@ -1393,7 +1399,7 @@ export default function PositionsPage() {
           (segmented-control look) so they're evenly spaced instead of
           bunched on the left; md+ falls back to left-aligned underline
           tabs. */}
-      <div className="flex items-center gap-6 border-b border-border">
+      <div className="flex items-center justify-around border-b border-border">
         {/* Tab order per operator: Closed · Position · Active. Position stays
             the default open tab (see `useState("position")`). */}
         <TabBtn
@@ -1491,7 +1497,7 @@ export default function PositionsPage() {
               liveLtpFor={liveLtpFor}
               onEdit={(row, kind) => setEditing({ row, kind, source: "active" })}
               onExit={exitActive}
-              onTrade={(tok) => setSheetToken(tok)}
+              onOpen={(row) => setPosSheetRow(row)}
               emptyLabel="No active trades"
               emptyHint="Each open fill that makes up your positions appears here."
             />
@@ -1515,7 +1521,7 @@ export default function PositionsPage() {
               liveLtpFor={liveLtpFor}
               onEdit={(row, kind) => setEditing({ row, kind, source: "position" })}
               onExit={squareoff}
-              onTrade={(tok) => setSheetToken(tok)}
+              onOpen={(row) => setPosSheetRow(row)}
               emptyLabel="No open positions"
               emptyHint="Your open positions show up here the moment you place a trade."
             />
@@ -1584,8 +1590,32 @@ export default function PositionsPage() {
       <TradeDetailSheet
         token={sheetToken}
         open={!!sheetToken}
+        initialSide={sheetSide}
         onClose={() => setSheetToken(null)}
         onSwap={(tok) => setSheetToken(tok)}
+      />
+
+      {/* Position-summary sheet — opens when a Position/Active row is tapped.
+          Shows BID/ASK · OHLC · Current P&L and Exit All / Add More /
+          Partial Exit. Add More / Partial Exit hand off to the order sheet
+          above (BUY / SELL); Exit All squares the whole position off. */}
+      <PositionSheet
+        row={posSheetRow}
+        onClose={() => setPosSheetRow(null)}
+        onExitAll={(row) => {
+          setPosSheetRow(null);
+          squareoff(String(row?.id ?? ""));
+        }}
+        onAddMore={(token) => {
+          setPosSheetRow(null);
+          setSheetSide("BUY");
+          setSheetToken(token);
+        }}
+        onPartialExit={(token) => {
+          setPosSheetRow(null);
+          setSheetSide("SELL");
+          setSheetToken(token);
+        }}
       />
 
       {/* Pending-order modify dialog. Lets the user tweak lots, price
@@ -1973,6 +2003,204 @@ function CurrentPriceCell({
  * Closed tab swaps to this presentation under `md:` while desktop keeps
  * the grid for fast scanning across many rows.
  */
+// ─────────────────────────────────────────────────────────────────
+// Position-summary bottom sheet (screenshot): opens on a row tap. Shows
+// BID/ASK · OHLC · Current P&L and Exit All / Add More / Partial Exit.
+// Add More / Partial Exit hand back to the parent to open the order sheet
+// (BUY / SELL); Exit All squares the whole position off.
+// ─────────────────────────────────────────────────────────────────
+function PositionSheet({
+  row,
+  onClose,
+  onExitAll,
+  onAddMore,
+  onPartialExit,
+}: {
+  row: any | null;
+  onClose: () => void;
+  onExitAll: (row: any) => void;
+  onAddMore: (token: string) => void;
+  onPartialExit: (token: string) => void;
+}) {
+  const open = !!row;
+  const token = String(row?.instrument_token ?? row?.token ?? "");
+
+  // Live quote for BID/ASK/OHLC/change — shares the ["quote", token] cache
+  // the TradeDetailSheet / terminal already use.
+  const { data: quote } = useQuery<any>({
+    queryKey: ["quote", token],
+    queryFn: () => InstrumentAPI.quote(token),
+    enabled: open && !!token,
+    refetchInterval: 1500,
+    staleTime: 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  if (!open) return null;
+
+  const sideRaw = String(row?.opened_side ?? row?.action ?? row?.side ?? "").toUpperCase();
+  const qtySigned = Number(row?.quantity ?? 0);
+  const side: "BUY" | "SELL" =
+    sideRaw === "BUY" || sideRaw === "SELL"
+      ? (sideRaw as "BUY" | "SELL")
+      : qtySigned >= 0
+        ? "BUY"
+        : "SELL";
+  const isLong = side === "BUY";
+  const seg = row?.segment ?? row?.segment_type ?? "";
+  const exch = row?.exchange;
+  const avg = Number(row?.avg_price ?? row?.price ?? 0);
+  const qty = Math.abs(qtySigned);
+
+  const ltp = Number(quote?.ltp ?? row?.ltp ?? 0);
+  const bid = Number(quote?.bid ?? 0) || ltp;
+  const ask = Number(quote?.ask ?? 0) || ltp;
+  const change = Number(quote?.change ?? 0);
+  const changePct = Number(quote?.change_pct ?? 0);
+  // Close-side price for live P&L: a long closes on the bid, a short on the ask.
+  const closePrice = (isLong ? bid : ask) || ltp;
+  const pnl =
+    avg > 0 && closePrice > 0 && qty > 0
+      ? (isLong ? 1 : -1) * (closePrice - avg) * qty
+      : 0;
+
+  const fp = (v: any) => formatPrice(Number(v ?? 0), seg, exch);
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="flex max-h-[92vh] w-[calc(100%-1rem)] max-w-md flex-col gap-0 overflow-hidden p-0">
+        <DialogTitle className="sr-only">{row?.symbol}</DialogTitle>
+        <div className="space-y-3 p-4">
+          {/* Header — symbol + badges / live price + change */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="truncate text-lg font-bold leading-tight">
+                {row?.symbol}
+              </div>
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                <span className="rounded-md bg-muted/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {String(seg).toUpperCase()}
+                </span>
+                {row?.product_type ? (
+                  <span className="rounded-md bg-muted/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {row.product_type}
+                  </span>
+                ) : null}
+                <span
+                  className={cn(
+                    "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                    side === "BUY" ? "bg-buy/15 text-buy" : "bg-sell/15 text-sell",
+                  )}
+                >
+                  {side}
+                </span>
+              </div>
+            </div>
+            <div className="shrink-0 text-right">
+              <div className={cn("font-tabular text-lg font-bold tabular-nums", pnlColor(changePct))}>
+                {fp(ltp)}
+              </div>
+              <div className={cn("font-tabular text-xs tabular-nums", pnlColor(changePct))}>
+                {change >= 0 ? "+" : ""}
+                {change.toFixed(2)} ({formatPercent(changePct)})
+              </div>
+            </div>
+          </div>
+
+          {/* BID / ASK */}
+          <div className="flex items-center gap-5 text-sm text-muted-foreground">
+            <span>
+              BID{" "}
+              <span className="font-tabular font-bold tabular-nums text-sell">{fp(bid)}</span>
+            </span>
+            <span>
+              ASK{" "}
+              <span className="font-tabular font-bold tabular-nums text-buy">{fp(ask)}</span>
+            </span>
+          </div>
+
+          {/* OHLC */}
+          <div className="grid grid-cols-4 overflow-hidden rounded-xl border border-border">
+            <OhlcCell label="OPEN" value={fp(quote?.open)} />
+            <OhlcCell label="HIGH" value={fp(quote?.high)} tone="buy" />
+            <OhlcCell label="LOW" value={fp(quote?.low)} tone="sell" />
+            <OhlcCell label="CLOSE" value={fp(quote?.prev_close)} last />
+          </div>
+
+          {/* Current P&L + Exit All */}
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/10 p-3">
+            <div className="min-w-0">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Current P&amp;L
+              </div>
+              <div className={cn("font-tabular text-xl font-bold tabular-nums", pnlColor(pnl))}>
+                {pnl >= 0 ? "+" : ""}
+                {formatINR(pnl)}
+              </div>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={() => onExitAll(row)}
+              className="h-11 shrink-0 gap-1.5 px-4"
+            >
+              <LogOut className="size-4" /> Exit All
+            </Button>
+          </div>
+
+          {/* Add More / Partial Exit → order sheet (BUY / SELL) */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={() => onAddMore(token)}
+              className="h-12 gap-1.5 text-sm font-bold"
+            >
+              <ArrowUp className="size-4" /> Add More
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => onPartialExit(token)}
+              className="h-12 gap-1.5 text-sm font-bold"
+            >
+              <ArrowDown className="size-4" /> Partial Exit
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function OhlcCell({
+  label,
+  value,
+  tone,
+  last,
+}: {
+  label: string;
+  value: string;
+  tone?: "buy" | "sell";
+  last?: boolean;
+}) {
+  return (
+    <div className={cn("px-2 py-2 text-center", !last && "border-r border-border")}>
+      <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+      <div
+        className={cn(
+          "mt-0.5 font-tabular text-xs font-bold tabular-nums",
+          tone === "buy"
+            ? "text-buy"
+            : tone === "sell"
+              ? "text-sell"
+              : "text-foreground",
+        )}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
 function ClosedMobileList({ rows, loading }: { rows: any[]; loading: boolean }) {
   if (loading) {
     return (
@@ -2046,15 +2274,6 @@ function ClosedMobileCard({ row: r }: { row: any }) {
 
   return (
     <li className="relative px-3 py-3">
-      {/* Subtle accent stripe — BUY = green, SELL = red. Same visual
-          language as Active/Position cards for consistency. */}
-      <span
-        aria-hidden
-        className={cn(
-          "absolute inset-y-0 left-0 w-0.5",
-          side === "BUY" ? "bg-buy/60" : "bg-sell/60",
-        )}
-      />
 
       {/* Top row: BUY/SELL · qty · CLOSED · product */}
       <div className="flex items-center justify-between gap-2">
@@ -2211,6 +2430,7 @@ function ActiveMobileList({
   onEdit,
   onExit,
   onTrade,
+  onOpen,
   emptyLabel = "Nothing here yet",
   emptyHint,
   variant = "active",
@@ -2230,6 +2450,9 @@ function ActiveMobileList({
    *  TradeDetailSheet. Inner TP/SL/Exit buttons stopPropagation
    *  so they don't fire trade open simultaneously. */
   onTrade?: (token: string) => void;
+  /** Tap on the card body fires this with the full row so the parent can
+   *  open the position-summary sheet (Exit All / Add More / Partial Exit). */
+  onOpen?: (row: any) => void;
   /** Tab-aware empty-state copy — the Position tab reads "No open
    *  positions" while the Active tab reads "No active trades". */
   emptyLabel?: string;
@@ -2281,6 +2504,7 @@ function ActiveMobileList({
             onEdit={onEdit}
             onExit={onExit}
             onTrade={onTrade}
+            onOpen={onOpen}
             variant={variant}
           />
         );
@@ -2295,6 +2519,7 @@ function ActiveMobileCard({
   onEdit,
   onExit,
   onTrade,
+  onOpen,
   variant = "active",
 }: {
   row: any;
@@ -2302,6 +2527,7 @@ function ActiveMobileCard({
   onEdit: (row: any, kind: "TP" | "SL") => void;
   onExit: (id: string) => void;
   onTrade?: (token: string) => void;
+  onOpen?: (row: any) => void;
   variant?: "position" | "active";
 }) {
   // The same card now drives both Active-trades rows (per-fill) AND
@@ -2362,34 +2588,27 @@ function ActiveMobileCard({
   // was to mentally parse the symbol.
   const expiry = extractExpiryLabel(r.symbol);
 
-  // Tap-anywhere-on-card → open the slide-up trade sheet for this
-  // instrument so the user can place a fresh BUY / SELL on the same
-  // symbol without leaving the Positions page. Inner action buttons
-  // (TP / SL / Exit) stopPropagation so they don't double-fire.
+  // Tap-anywhere-on-card → open the position-summary sheet (Exit All / Add
+  // More / Partial Exit) for this instrument. `onTrade` is kept as a
+  // fallback for any caller that still passes only a token.
   const tradeToken =
     String(r?.instrument_token ?? r?.token ?? r?.instrument?.token ?? "") || "";
-  const cardOpensTrade = !!onTrade && !!tradeToken;
+  const cardOpensTrade = (!!onOpen || !!onTrade) && !!tradeToken;
+  const openCard = () => {
+    if (onOpen) onOpen(r);
+    else if (onTrade) onTrade(tradeToken);
+  };
   return (
     <li
       className={cn(
         // Flat row (operator: "card me andar mat rakh, normally type se
         // rakh") — no box/border/gradient; the list's divide-y draws the
-        // separators. A left accent stripe still marks BUY/SELL.
+        // separators.
         "relative px-3 py-3",
         cardOpensTrade && "cursor-pointer transition-colors hover:bg-muted/20 active:bg-muted/30",
       )}
-      onClick={cardOpensTrade ? () => onTrade!(tradeToken) : undefined}
+      onClick={cardOpensTrade ? openCard : undefined}
     >
-      {/* Subtle accent stripe on the left edge — BUY = green, SELL = red.
-          Reads at a glance without occupying horizontal space. */}
-      <span
-        aria-hidden
-        className={cn(
-          "absolute inset-y-0 left-0 w-0.5",
-          side === "BUY" ? "bg-buy/70" : "bg-sell/70",
-        )}
-      />
-
       {variant === "position" ? (
         /* ── POSITION card — compact screenshot layout. Line 1: side badge +
             cart-qty · time badge (tinted by P&L sign). Line 2: symbol · live
@@ -2660,13 +2879,6 @@ function PendingOrderCard({
   const status = String(o?.status ?? "").toUpperCase();
   return (
     <li className="relative px-3 py-3">
-      <span
-        aria-hidden
-        className={cn(
-          "absolute inset-y-0 left-0 w-0.5",
-          side === "BUY" ? "bg-buy/60" : "bg-sell/60",
-        )}
-      />
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span
