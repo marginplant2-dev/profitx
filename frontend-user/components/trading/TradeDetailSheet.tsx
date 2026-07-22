@@ -9,6 +9,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   ArrowLeftRight,
+  ChevronLeft,
   LineChart,
   Layers,
   Minus,
@@ -69,6 +70,14 @@ interface Props {
     exchange?: string | null;
     segment?: string | null;
   } | null;
+  /** Position mode: render the single-side "add / close" order form
+   *  (screenshot 3/4) — a back arrow + Enable-Stoploss-&-Target toggle on
+   *  top, segment/product/side badges + BID/ASK, no Charts / Option-chain /
+   *  Market-Limit chrome, and ONE side button. Used by the Positions page's
+   *  Add More (BUY) / Partial Exit (SELL) actions. */
+  positionMode?: boolean;
+  /** Back-arrow handler in positionMode — returns to the position sheet. */
+  onBack?: () => void;
 }
 
 /**
@@ -93,7 +102,7 @@ export function TradeDetailSheet(props: Props) {
   return <TradeDetailSheetInner {...props} />;
 }
 
-function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seedQuote }: Props) {
+function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seedQuote, positionMode, onBack }: Props) {
   const qc = useQueryClient();
 
   // ── Live data ─────────────────────────────────────────────────────
@@ -837,6 +846,43 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           Trade {instrument?.symbol ?? ""}
         </DialogTitle>
 
+        {/* ── Position-mode top bar — back arrow + Enable Stoploss & Target
+            toggle (screenshot 3/4). ─────────────────────────────── */}
+        {positionMode && (
+          <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
+            <button
+              type="button"
+              onClick={onBack ?? onClose}
+              aria-label="Back"
+              className="grid size-8 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSlTpEnabled((v) => !v)}
+              className="flex items-center gap-2 text-sm font-medium"
+            >
+              <span className={slTpEnabled ? "text-foreground" : "text-muted-foreground"}>
+                Enable Stoploss &amp; Target
+              </span>
+              <span
+                className={cn(
+                  "relative inline-block h-5 w-9 rounded-full transition-colors",
+                  slTpEnabled ? "bg-primary" : "bg-muted",
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute top-0.5 size-4 rounded-full bg-background transition-all",
+                    slTpEnabled ? "left-[18px]" : "left-0.5",
+                  )}
+                />
+              </span>
+            </button>
+          </div>
+        )}
+
         {/* ── Header ─────────────────────────────────────────────── */}
         <div className="border-b border-border px-4 py-3">
           <div className="flex items-start gap-3">
@@ -878,11 +924,47 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             </div>
           </div>
 
+          {/* Position-mode: segment · product · side badges + BID / ASK. */}
+          {positionMode && (
+            <>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="rounded-md bg-muted/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {seg}
+                </span>
+                <span className="rounded-md bg-muted/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {productType}
+                </span>
+                <span
+                  className={cn(
+                    "rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                    side === "BUY" ? "bg-buy/15 text-buy" : "bg-sell/15 text-sell",
+                  )}
+                >
+                  {side}
+                </span>
+              </div>
+              <div className="mt-2 flex items-center gap-5 text-sm text-muted-foreground">
+                <span>
+                  BID{" "}
+                  <span className="font-tabular font-bold tabular-nums text-sell">
+                    {fmtPrice(sellPrice)}
+                  </span>
+                </span>
+                <span>
+                  ASK{" "}
+                  <span className="font-tabular font-bold tabular-nums text-buy">
+                    {fmtPrice(buyPrice)}
+                  </span>
+                </span>
+              </div>
+            </>
+          )}
+
           {/* OHLC strip — full-width, 4 equal cells with vertical dividers.
               Replaces the old flex-wrap "O x H x L x C x" row that wrapped
               awkwardly onto multiple lines for long values (e.g. gold
               4218.56), which looked cramped/unprofessional. */}
-          {(quote?.open > 0 ||
+          {!positionMode && (quote?.open > 0 ||
             quote?.high > 0 ||
             quote?.low > 0 ||
             quote?.prev_close > 0) && (
@@ -912,7 +994,8 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           )}
         </div>
 
-        {/* ── Action row ──────────────────────────────────────────── */}
+        {/* ── Action row (hidden in position mode) ────────────────── */}
+        {!positionMode && (
         <div className="flex items-center gap-2 px-4 pt-3">
           <Link
             href={`/terminal?token=${encodeURIComponent(token ?? "")}`}
@@ -955,6 +1038,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             </span>
           </button>
         </div>
+        )}
 
         {/* ── Stats grid ──────────────────────────────────────────── */}
         {/* LTP High / Low / Open / Last — hidden on mobile to keep
@@ -987,18 +1071,21 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
         {/* ── Lot info row ────────────────────────────────────────── */}
         <div className="flex items-end gap-3 px-4">
           <div className="flex flex-1 gap-4 text-[11px]">
-            <LotMeta label="Max Lots" value={maxLotTotal > 0 ? String(maxLotTotal) : "—"} />
-            <LotMeta label="Order Lots" value={maxLotPerOrder > 0 ? String(maxLotPerOrder) : "—"} />
+            <LotMeta label="Max Lot" value={maxLotTotal > 0 ? String(maxLotTotal) : "—"} />
+            <LotMeta label="Order Lot" value={maxLotPerOrder > 0 ? String(maxLotPerOrder) : "—"} />
             <LotMeta label="Lot Size" value={String(lotSize)} />
+            {positionMode && <LotMeta label="Qty" value={fmtLots(liveQty)} />}
           </div>
-          <button
-            type="button"
-            onClick={() => setUnit((u) => (u === "LOTS" ? "QTY" : "LOTS"))}
-            className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-[11px] font-medium hover:bg-muted/40"
-          >
-            <ArrowLeftRight className="size-3" />
-            {unit === "LOTS" ? "Qty" : "Lots"}
-          </button>
+          {!positionMode && (
+            <button
+              type="button"
+              onClick={() => setUnit((u) => (u === "LOTS" ? "QTY" : "LOTS"))}
+              className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-[11px] font-medium hover:bg-muted/40"
+            >
+              <ArrowLeftRight className="size-3" />
+              {unit === "LOTS" ? "Qty" : "Lots"}
+            </button>
+          )}
         </div>
 
         {/* ── Price + Lot stepper ─────────────────────────────────── */}
@@ -1103,7 +1190,8 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           </div>
         </div>
 
-        {/* ── Order type tabs ─────────────────────────────────────── */}
+        {/* ── Order type tabs (hidden in position mode → Market) ──── */}
+        {!positionMode && (
         <div className="mt-3 grid grid-cols-2 gap-2 px-4">
           <button
             type="button"
@@ -1130,6 +1218,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             <Timer className="size-4" /> Limit
           </button>
         </div>
+        )}
 
         {/* ── SL / TP inputs ──────────────────────────────────────── */}
         {slTpEnabled && (
@@ -1205,7 +1294,32 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           );
         })()}
 
-        {/* ── Big BUY / SELL ──────────────────────────────────────── */}
+        {/* ── Order button: single side in position mode, else BUY / SELL ── */}
+        {positionMode ? (
+          <div className="mt-4 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <Button
+              type="button"
+              disabled={submitting !== null}
+              onClick={() => submit(side)}
+              className={cn(
+                "flex h-14 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold",
+                side === "BUY"
+                  ? "bg-buy text-buy-foreground hover:bg-buy/90"
+                  : "bg-sell text-sell-foreground hover:bg-sell/90",
+              )}
+            >
+              {side === "BUY" ? (
+                <ArrowUpRight className="size-4" />
+              ) : (
+                <ArrowDownRight className="size-4" />
+              )}
+              {side} {instrument?.symbol ?? ""}
+              <span className="ml-auto font-tabular tabular-nums">
+                {fmtPrice(side === "BUY" ? buyPrice : sellPrice)}
+              </span>
+            </Button>
+          </div>
+        ) : (
         <div className="mt-4 grid grid-cols-2 gap-2 px-4 pb-4">
           {/* `loading` removed — submit is fire-and-forget now and the
               sheet closes immediately on tap, so no spinner state is
@@ -1238,6 +1352,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             </span>
           </Button>
         </div>
+        )}
       </DialogContent>
       {/* Option chain picker — only mounted for Indian rows. On pick we
           close the sheet AND navigate to terminal so the trader lands

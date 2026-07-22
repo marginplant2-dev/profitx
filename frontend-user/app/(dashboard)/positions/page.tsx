@@ -1591,7 +1591,14 @@ export default function PositionsPage() {
         token={sheetToken}
         open={!!sheetToken}
         initialSide={sheetSide}
-        onClose={() => setSheetToken(null)}
+        positionMode
+        // Back arrow → close the order sheet, revealing the position sheet
+        // underneath. onClose (submit / backdrop) closes BOTH.
+        onBack={() => setSheetToken(null)}
+        onClose={() => {
+          setSheetToken(null);
+          setPosSheetRow(null);
+        }}
         onSwap={(tok) => setSheetToken(tok)}
       />
 
@@ -1607,12 +1614,12 @@ export default function PositionsPage() {
           squareoff(String(row?.id ?? ""));
         }}
         onAddMore={(token) => {
-          setPosSheetRow(null);
+          // Keep the position sheet mounted underneath so the order sheet's
+          // back arrow returns to it.
           setSheetSide("BUY");
           setSheetToken(token);
         }}
         onPartialExit={(token) => {
-          setPosSheetRow(null);
           setSheetSide("SELL");
           setSheetToken(token);
         }}
