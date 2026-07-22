@@ -51,65 +51,51 @@ export default function TwoFAEnrollPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="space-y-2">
-        <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
-          <ShieldCheck className="size-5" />
-        </div>
-        <h2 className="text-3xl font-bold tracking-tight">
+    <div className="space-y-5">
+      <div className="space-y-1.5 text-center">
+        <h2 className="text-lg font-bold tracking-tight text-white">
           Enable two-factor authentication
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-slate-400">
           Scan the secret with Google Authenticator, Authy, or 1Password and enter the 6-digit code.
         </p>
       </div>
 
       {secret ? (
-        <div className="space-y-6">
-          {/* Secret display */}
+        <div className="space-y-4">
           <div className="space-y-3">
-            <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
-              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                 Secret Key
               </div>
               <div className="flex items-center justify-between gap-2">
-                <code className="break-all font-mono text-xs text-foreground">
-                  {secret}
-                </code>
+                <code className="break-all font-mono text-xs text-white">{secret}</code>
                 <button
                   onClick={copySecret}
-                  className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary transition-colors hover:bg-primary/20"
+                  className="grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-500/15 text-emerald-400 transition-colors hover:bg-emerald-500/25"
                   aria-label="Copy secret"
                 >
-                  {copied ? (
-                    <CheckCircle2 className="size-3.5" />
-                  ) : (
-                    <Copy className="size-3.5" />
-                  )}
+                  {copied ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
                 </button>
               </div>
             </div>
 
             {uri && (
-              <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
-                <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   Provisioning URI
                 </div>
-                <code className="break-all font-mono text-[11px] text-muted-foreground">
-                  {uri}
-                </code>
+                <code className="break-all font-mono text-[11px] text-slate-400">{uri}</code>
               </div>
             )}
           </div>
 
-          {/* Code input */}
-          <div className="space-y-2">
-            <Label htmlFor="code" className="text-sm font-medium">
+          <div className="space-y-1.5">
+            <Label htmlFor="code" className="text-xs font-medium text-slate-300">
               6-digit verification code
             </Label>
             <div className="relative">
-              <ShieldCheck className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <ShieldCheck className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
               <Input
                 id="code"
                 inputMode="numeric"
@@ -117,14 +103,14 @@ export default function TwoFAEnrollPage() {
                 placeholder="000000"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                className="h-12 rounded-xl border-border/60 bg-muted/30 pl-10 text-center font-mono text-lg tracking-[0.5em] transition-colors focus:border-primary/50 focus:bg-background"
+                className="h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-center font-mono text-lg tracking-[0.5em] text-white placeholder:text-slate-600 focus:border-emerald-500/50 focus:bg-white/[0.06]"
               />
             </div>
           </div>
 
           <Button
             onClick={enable}
-            className="h-12 w-full rounded-xl text-sm font-semibold shadow-lg shadow-primary/20"
+            className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#10b981] to-[#059669] text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-opacity hover:opacity-95"
             loading={busy}
             disabled={code.length !== 6}
           >
@@ -134,8 +120,8 @@ export default function TwoFAEnrollPage() {
       ) : (
         <div className="flex min-h-[200px] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-3 size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <p className="text-sm text-muted-foreground">Generating secret…</p>
+            <div className="mx-auto mb-3 size-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+            <p className="text-sm text-slate-400">Generating secret…</p>
           </div>
         </div>
       )}

@@ -24,6 +24,14 @@ const resetSchema = z.object({
     .regex(/\d/),
 });
 
+const inputCls =
+  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.06]";
+const iconCls =
+  "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500";
+const labelCls = "text-xs font-medium text-slate-300";
+const primaryBtn =
+  "h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#10b981] to-[#059669] text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-opacity hover:opacity-95";
+
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState<"request" | "reset">("request");
   const [identifier, setIdentifier] = useState("");
@@ -57,96 +65,76 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="space-y-2">
-        <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
-          <KeyRound className="size-5" />
-        </div>
-        <h2 className="text-3xl font-bold tracking-tight">Forgot password</h2>
-        <p className="text-sm text-muted-foreground">
+    <div className="space-y-5">
+      <div className="space-y-1.5 text-center">
+        <h2 className="text-lg font-bold tracking-tight text-white">Forgot password</h2>
+        <p className="text-xs text-slate-400">
           {step === "request"
-            ? "Enter your email or mobile and we'll send a reset code."
+            ? "Enter your Userid / email / mobile and we'll send a reset code."
             : `Enter the code sent to ${identifier} and choose a new password.`}
         </p>
       </div>
 
-      {/* Step indicator */}
-      <div className="flex items-center gap-3">
-        <div className={`flex items-center gap-2 text-xs font-semibold ${step === "request" ? "text-primary" : "text-muted-foreground"}`}>
-          <span className={`grid size-6 place-items-center rounded-full text-[10px] font-bold ${step === "request" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
-            1
-          </span>
-          Verify identity
-        </div>
-        <div className="h-px flex-1 bg-border/60" />
-        <div className={`flex items-center gap-2 text-xs font-semibold ${step === "reset" ? "text-primary" : "text-muted-foreground"}`}>
-          <span className={`grid size-6 place-items-center rounded-full text-[10px] font-bold ${step === "reset" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
-            2
-          </span>
-          Reset password
-        </div>
-      </div>
-
       {step === "request" ? (
-        <form onSubmit={requestForm.handleSubmit(onRequest)} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="identifier" className="text-sm font-medium">Email or Mobile</Label>
+        <form onSubmit={requestForm.handleSubmit(onRequest)} className="space-y-3.5">
+          <div className="space-y-1.5">
+            <Label htmlFor="identifier" className={labelCls}>Userid / Email / Mobile</Label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className={iconCls} />
               <Input
                 id="identifier"
-                placeholder="you@example.com or 9999900000"
-                className="h-12 rounded-xl border-border/60 bg-muted/30 pl-10 text-sm transition-colors focus:border-primary/50 focus:bg-background"
+                placeholder="Enter your Userid"
+                className={inputCls}
                 {...requestForm.register("identifier")}
               />
             </div>
           </div>
-          <Button type="submit" className="h-12 w-full rounded-xl text-sm font-semibold shadow-lg shadow-primary/20" loading={requestForm.formState.isSubmitting}>
+          <Button type="submit" className={primaryBtn} loading={requestForm.formState.isSubmitting}>
             Send reset code
           </Button>
         </form>
       ) : (
-        <form onSubmit={resetForm.handleSubmit(onReset)} className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="otp" className="text-sm font-medium">Reset code</Label>
+        <form onSubmit={resetForm.handleSubmit(onReset)} className="space-y-3.5">
+          <div className="space-y-1.5">
+            <Label htmlFor="otp" className={labelCls}>Reset code</Label>
             <div className="relative">
-              <KeyRound className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <KeyRound className={iconCls} />
               <Input
                 id="otp"
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="Enter 6-digit code"
-                className="h-12 rounded-xl border-border/60 bg-muted/30 pl-10 text-sm transition-colors focus:border-primary/50 focus:bg-background"
+                className={inputCls}
                 {...resetForm.register("otp")}
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="new_password" className="text-sm font-medium">New password</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="new_password" className={labelCls}>New password</Label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Lock className={iconCls} />
               <Input
                 id="new_password"
                 type="password"
                 placeholder="Enter new password"
-                className="h-12 rounded-xl border-border/60 bg-muted/30 pl-10 text-sm transition-colors focus:border-primary/50 focus:bg-background"
+                className={inputCls}
                 {...resetForm.register("new_password")}
               />
             </div>
           </div>
-          <Button type="submit" className="h-12 w-full rounded-xl text-sm font-semibold shadow-lg shadow-primary/20" loading={resetForm.formState.isSubmitting}>
+          <Button type="submit" className={primaryBtn} loading={resetForm.formState.isSubmitting}>
             Reset password
           </Button>
         </form>
       )}
 
-      <p className="text-center text-sm text-muted-foreground">
-        <Link href="/login" className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-primary/80">
-          <ArrowLeft className="size-3.5" />
-          Back to sign in
-        </Link>
-      </p>
+      <Link
+        href="/login"
+        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/[0.03] text-sm font-semibold text-slate-200 transition-colors hover:bg-white/[0.07]"
+      >
+        <ArrowLeft className="size-4" />
+        Back to Login
+      </Link>
     </div>
   );
 }

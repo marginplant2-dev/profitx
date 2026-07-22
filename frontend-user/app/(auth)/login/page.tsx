@@ -7,21 +7,43 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2, Mail, Lock, ShieldCheck, Smartphone, Zap } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  User,
+  ShieldCheck,
+  Zap,
+  UserPlus,
+  Download,
+  MessageCircle,
+} from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { ApiError, AuthAPI, ProfileAPI, setTokens } from "@/lib/api";
 import { STORAGE_KEYS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InstallPwaButton } from "@/components/common/InstallPwaButton";
+
+// TODO: replace these with your real links (WhatsApp support number + app URL).
+const WHATSAPP_URL = "https://wa.me/910000000000";
+const DOWNLOAD_URL = "/download";
 
 const schema = z.object({
-  identifier: z.string().min(3, "Enter your email or mobile"),
-  password: z.string().min(8, "Minimum 8 characters"),
+  identifier: z.string().min(3, "Enter your Userid"),
+  password: z.string().min(6, "Enter your password"),
   two_fa_code: z.string().optional(),
 });
 type FormValues = z.infer<typeof schema>;
+
+const inputCls =
+  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.06]";
+const iconCls =
+  "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500";
+const labelCls = "text-xs font-medium text-slate-300";
+const outlineBtn =
+  "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/12 bg-white/[0.03] text-sm font-semibold text-slate-200 transition-colors hover:bg-white/[0.07] active:scale-[0.99]";
 
 export default function LoginPage() {
   return (
@@ -33,13 +55,13 @@ export default function LoginPage() {
 
 function LoginSplash({ subtitle }: { subtitle: string }) {
   return (
-    <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 text-center">
-      <div className="grid size-12 place-items-center rounded-2xl bg-primary/10">
-        <Loader2 className="size-5 animate-spin text-primary" />
+    <div className="flex min-h-[220px] flex-col items-center justify-center gap-3 text-center">
+      <div className="grid size-12 place-items-center rounded-2xl bg-emerald-500/10">
+        <Loader2 className="size-5 animate-spin text-emerald-400" />
       </div>
       <div className="space-y-1">
-        <p className="text-sm font-medium text-foreground">Signing you in…</p>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
+        <p className="text-sm font-medium text-white">Signing you in…</p>
+        <p className="text-xs text-slate-400">{subtitle}</p>
       </div>
     </div>
   );
@@ -135,72 +157,62 @@ function LoginPageInner() {
   if (isImpersonating && !impersonationFailed) {
     return <LoginSplash subtitle="Redirecting to your dashboard" />;
   }
-
   if (!hydrated) {
     return <LoginSplash subtitle="Restoring your session…" />;
   }
-
   if (currentUser) {
     return <LoginSplash subtitle="Redirecting to your dashboard" />;
   }
 
   return (
-    <div className="space-y-4 lg:space-y-6">
-      {/* Compact header on mobile — tab bar in layout already labels
-          the page, so headline + sub-line are sized just enough for
-          context. Desktop keeps the larger treatment since there's
-          no tab bar above. */}
-      <div className="space-y-1">
-        <h2 className="text-lg font-bold tracking-tight lg:text-3xl">
-          Welcome back
-        </h2>
-        <p className="text-xs text-muted-foreground lg:text-sm">
-          Sign in to your trading account to continue.
-        </p>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 lg:space-y-5">
+    <div className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
+        {/* Userid */}
         <div className="space-y-1.5">
-          <Label htmlFor="identifier" className="text-xs font-medium lg:text-sm">
-            Email or Mobile
+          <Label htmlFor="identifier" className={labelCls}>
+            Userid
           </Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <User className={iconCls} />
             <Input
               id="identifier"
-              placeholder="you@example.com or 9999900000"
+              placeholder="Enter your Userid"
               autoComplete="username"
-              className="h-10 rounded-lg border-border/60 bg-muted/40 pl-9 text-sm transition-colors focus:border-primary/50 focus:bg-background lg:h-12 lg:rounded-xl lg:pl-10"
+              className={inputCls}
               {...form.register("identifier")}
             />
           </div>
           {form.formState.errors.identifier && (
-            <p className="text-xs text-destructive">{form.formState.errors.identifier.message}</p>
+            <p className="text-xs text-red-400">{form.formState.errors.identifier.message}</p>
           )}
         </div>
 
+        {/* Password */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-xs font-medium lg:text-sm">
+            <Label htmlFor="password" className={labelCls}>
               Password
             </Label>
-            <Link href="/forgot-password" className="text-xs font-medium text-primary hover:text-primary/80">
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-emerald-400 hover:text-emerald-300"
+            >
               Forgot password?
             </Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Lock className={iconCls} />
             <Input
               id="password"
               type={showPwd ? "text" : "password"}
+              placeholder="Enter your password"
               autoComplete="current-password"
-              className="h-10 rounded-lg border-border/60 bg-muted/40 pl-9 pr-10 text-sm transition-colors focus:border-primary/50 focus:bg-background lg:h-12 lg:rounded-xl lg:pl-10 lg:pr-12"
+              className={`${inputCls} pr-11`}
               {...form.register("password")}
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground transition-colors hover:text-foreground"
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 transition-colors hover:text-slate-300"
               onClick={() => setShowPwd((v) => !v)}
               aria-label={showPwd ? "Hide password" : "Show password"}
             >
@@ -208,24 +220,24 @@ function LoginPageInner() {
             </button>
           </div>
           {form.formState.errors.password && (
-            <p className="text-xs text-destructive">{form.formState.errors.password.message}</p>
+            <p className="text-xs text-red-400">{form.formState.errors.password.message}</p>
           )}
         </div>
 
         {needs2fa && (
-          <div className="space-y-2">
-            <Label htmlFor="two_fa_code" className="text-sm font-medium">
+          <div className="space-y-1.5">
+            <Label htmlFor="two_fa_code" className={labelCls}>
               2FA Code
             </Label>
             <div className="relative">
-              <ShieldCheck className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <ShieldCheck className={iconCls} />
               <Input
                 id="two_fa_code"
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="123456"
                 autoComplete="one-time-code"
-                className="h-12 rounded-xl border-border/60 bg-muted/40 pl-10 text-sm transition-colors focus:border-primary/50 focus:bg-background"
+                className={inputCls}
                 {...form.register("two_fa_code")}
               />
             </div>
@@ -234,93 +246,54 @@ function LoginPageInner() {
 
         <Button
           type="submit"
-          className="h-11 w-full rounded-lg border-0 bg-gradient-to-r from-[#16A34A] to-[#22C55E] text-sm font-semibold text-white shadow-lg shadow-green-500/30 transition-opacity hover:opacity-95 lg:h-12 lg:rounded-xl"
+          className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#10b981] to-[#059669] text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-opacity hover:opacity-95"
           loading={form.formState.isSubmitting}
         >
-          Sign in
+          Login
         </Button>
       </form>
 
-      {/* Demo account CTA — minimalist green */}
-      <div className="space-y-2">
-        <div className="relative flex items-center">
-          <div className="flex-1 border-t border-border/50" />
-          <span className="mx-3 text-[10px] text-muted-foreground">or try for free</span>
-          <div className="flex-1 border-t border-border/50" />
-        </div>
+      {/* Button stack */}
+      <div className="space-y-2.5">
         <button
           type="button"
           onClick={handleDemoLogin}
           disabled={demoLoading}
-          className="flex w-full items-center gap-2.5 rounded-xl border border-mp-primary/25 bg-mp-primary/5 px-3 py-2.5 text-left transition-colors hover:bg-mp-primary/10 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-70"
+          className={`${outlineBtn} disabled:pointer-events-none disabled:opacity-60`}
         >
-          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-mp-primary text-white">
-            {demoLoading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Zap className="size-4 fill-white" />
-            )}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold leading-tight text-foreground">
-              {demoLoading ? (
-                "Setting up demo…"
-              ) : (
-                <>
-                  Try Demo — ₹50,00,000
-                  <span className="hidden lg:inline"> virtual</span>
-                </>
-              )}
-            </span>
-            <span className="hidden text-[11px] text-muted-foreground lg:block">
-              No signup · Instant · Risk-free
-            </span>
-          </span>
-          {!demoLoading && (
-            <span className="shrink-0 rounded-full bg-mp-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-mp-primary">
-              Free
-            </span>
+          {demoLoading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Zap className="size-4 text-emerald-400" />
           )}
+          {demoLoading ? "Setting up demo…" : "Demo Login"}
         </button>
+
+        <Link href="/register" className={outlineBtn}>
+          <UserPlus className="size-4 text-emerald-400" />
+          Create Account
+        </Link>
+
+        <Link href={DOWNLOAD_URL} className={outlineBtn}>
+          <Download className="size-4 text-sky-400" />
+          Download ProfitX App
+        </Link>
+
+        <a
+          href={WHATSAPP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={outlineBtn}
+        >
+          <MessageCircle className="size-4 text-green-400" />
+          WhatsApp Support
+        </a>
       </div>
 
-      {/* Footer — "no account?" link + minimalist Install App CTA */}
-      <div className="space-y-3">
-        <p className="text-center text-xs text-muted-foreground lg:text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-semibold text-mp-primary hover:text-mp-primary/80">
-            Create one
-          </Link>
-        </p>
-
-        <InstallAppBanner />
-      </div>
-    </div>
-  );
-}
-
-/** Attractive "Install MarginPlant App" promo banner used on the auth
- *  pages.  Wraps InstallPwaButton's click logic but renders a much
- *  richer surface — gradient ring, app icon tile, headline + sub-line,
- *  arrow chevron — so users actually notice it. */
-function InstallAppBanner() {
-  return (
-    <div className="flex items-center gap-2.5 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5">
-      <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-mp-primary/10 text-mp-primary">
-        <Smartphone className="size-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold leading-tight text-foreground">
-          Get the app
-        </p>
-        <p className="hidden text-[11px] text-muted-foreground lg:block">
-          Faster orders, one-tap login.
-        </p>
-      </div>
-      <InstallPwaButton
-        variant="compact"
-        className="shrink-0 !border-mp-primary/30 !bg-mp-primary/10 !text-mp-primary hover:!bg-mp-primary/20"
-      />
+      <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-slate-500">
+        Trade Indian stocks, F&amp;O, commodities, currencies and crypto — real-time
+        market data, pro tools and a risk-free demo, anytime, anywhere.
+      </p>
     </div>
   );
 }
