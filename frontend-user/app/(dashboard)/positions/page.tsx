@@ -2068,9 +2068,9 @@ function PositionSheet({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="flex max-h-[92vh] w-[calc(100%-1rem)] max-w-md flex-col gap-0 overflow-hidden p-0">
+      <DialogContent bottomSheet className="gap-0 p-0">
         <DialogTitle className="sr-only">{row?.symbol}</DialogTitle>
-        <div className="space-y-3 p-4">
+        <div className="space-y-3 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           {/* Header — symbol + badges / live price + change */}
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">

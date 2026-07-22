@@ -832,7 +832,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
         onClose();
       }}
     >
-      <DialogContent className="flex max-h-[92vh] w-[calc(100%-1rem)] max-w-md flex-col gap-0 overflow-hidden p-0">
+      <DialogContent bottomSheet className="flex max-h-[92vh] max-w-md flex-col gap-0 overflow-hidden p-0">
         <DialogTitle className="sr-only">
           Trade {instrument?.symbol ?? ""}
         </DialogTitle>

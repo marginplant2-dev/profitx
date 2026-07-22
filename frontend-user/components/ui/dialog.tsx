@@ -27,19 +27,29 @@ DialogOverlay.displayName = "DialogOverlay";
 
 export const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    /** Anchor the dialog to the bottom of the screen and slide it up
+     *  (mobile bottom-sheet). Default is the centered modal. */
+    bottomSheet?: boolean;
+  }
+>(({ className, children, bottomSheet, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-border bg-card p-6 shadow-2xl",
-        // Keep the dialog inside the viewport on small screens and let its
-        // BODY scroll vertically — otherwise tall forms (like Add funds)
-        // become un-scrollable on mobile and trap the user.
-        "max-h-[calc(100vh-3rem)] overflow-y-auto overscroll-contain",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+        bottomSheet
+          ? // Bottom sheet — pinned to the bottom edge, slides up. Rounded
+            // top, safe-area-aware. Display/padding are left to the caller.
+            "fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-md max-h-[92vh] overflow-y-auto overscroll-contain rounded-t-2xl border border-border bg-card shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom"
+          : cn(
+              "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-border bg-card p-6 shadow-2xl",
+              // Keep the dialog inside the viewport on small screens and let
+              // its BODY scroll vertically — otherwise tall forms (like Add
+              // funds) become un-scrollable on mobile and trap the user.
+              "max-h-[calc(100vh-3rem)] overflow-y-auto overscroll-contain",
+              "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            ),
         className
       )}
       {...props}
