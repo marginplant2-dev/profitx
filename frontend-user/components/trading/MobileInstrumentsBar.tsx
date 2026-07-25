@@ -566,6 +566,15 @@ export function MobileInstrumentsBar({ activeToken, onSelect }: Props) {
                         segment: q.segment ?? q.instrument_type,
                       })
                     }
+                    onAdd={() => {
+                      // Arrow → subscribe/add to the watchlist/segment (add
+                      // only, never removes).
+                      if (managedSegmentName) {
+                        if (!alreadyAdded) addToSegment(token, q.symbol);
+                      } else if (!starred) {
+                        toggleFavorite(token);
+                      }
+                    }}
                     onToggleStar={() => {
                       if (managedSegmentName) {
                         if (alreadyAdded) removeFromSegment(token, q.symbol);
@@ -866,11 +875,13 @@ function SearchResultRow({
   q,
   active,
   onSelect,
+  onAdd,
   onToggleStar,
 }: {
   q: any;
   active: boolean;
   onSelect: () => void;
+  onAdd: () => void;
   onToggleStar: () => void;
 }) {
   const it = String(q.instrument_type ?? "").toUpperCase();
@@ -935,10 +946,16 @@ function SearchResultRow({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onSelect();
+            onAdd();
           }}
-          aria-label="Open"
-          className="grid size-8 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+          aria-label={active ? "Added to watchlist" : "Add to watchlist"}
+          title={active ? "Added" : "Add to watchlist"}
+          className={cn(
+            "grid size-8 place-items-center rounded-full border transition-colors",
+            active
+              ? "border-primary bg-primary/15 text-primary"
+              : "border-border text-muted-foreground hover:bg-muted/40 hover:text-foreground",
+          )}
         >
           <ArrowRight className="size-4" />
         </button>
