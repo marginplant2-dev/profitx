@@ -75,8 +75,10 @@ function AuthLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center bg-[#0a0e17] p-4">
-      <div className="w-full max-w-[400px] rounded-2xl border border-white/10 bg-[#131a26] p-6 shadow-2xl shadow-black/50 sm:p-8">
+    <main className="flex min-h-screen w-full items-start justify-center bg-[#0a0e17] px-5 pb-10 pt-14 sm:items-center sm:pt-10">
+      {/* No card — the form sits directly on the page background (operator:
+          "card ke andar mat rakh, normal rakh"). Just a max-width column. */}
+      <div className="w-full max-w-[400px]">
         <BrandMark logoSrc={logoSrc} name={name} />
         {children}
       </div>
