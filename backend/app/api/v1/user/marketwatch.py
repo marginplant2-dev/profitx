@@ -113,6 +113,75 @@ async def _get_or_create_segment_watchlist(
     return wl
 
 
+async def _drop_items_beyond_expiry_cap(user_id, items):
+    """Read-time: hide FUT watchlist/favourite items whose expiry is beyond
+    the user's effective expiry cap for that underlying — mirrors the
+    option-chain cap so a FUT favourite can't outlive the allowed nearest-N
+    expiries. FUT-only (options enter via the already-capped option chain).
+    No deletion — purely a read filter. FAIL-OPEN: if the allowed set can't be
+    computed (empty calendar), the row is kept.
+    """
+    if not items:
+        return items
+
+    from app.models._base import InstrumentType
+    from app.models.instrument import Instrument
+    from app.api.v1.user.option_chain import (
+        _effective_max_expiries,
+        _resolve_expiry_settings_for_user,
+    )
+    from app.utils.time_utils import now_ist
+
+    tokens = [it.instrument_token for it in items]
+    insts = await Instrument.find({"token": {"$in": tokens}}).to_list()
+    by_token = {inst.token: inst for inst in insts}
+
+    # Underlyings of the FUT items shown on this chip.
+    fut_uts: set[str] = set()
+    for it in items:
+        inst = by_token.get(it.instrument_token)
+        if inst and inst.instrument_type == InstrumentType.FUT and inst.underlying_token:
+            fut_uts.add(inst.underlying_token)
+    if not fut_uts:
+        return items
+
+    resolved = await _resolve_expiry_settings_for_user(user_id)
+    today = now_ist().date()
+
+    # Per underlying: the nearest-N distinct FUTURE expiries from the FULL FUT
+    # calendar (not just the user's picks).
+    allowed_by_ut: dict[str, set] = {}
+    for ut in fut_uts:
+        cal = await Instrument.find(
+            {"underlying_token": ut, "instrument_type": "FUT"}
+        ).to_list()
+        exps = sorted(
+            {inst.expiry for inst in cal if inst.expiry and inst.expiry >= today}
+        )
+        if not exps:
+            continue  # FAIL-OPEN — no calendar → keep the row
+        rep = cal[0]
+        n = _effective_max_expiries(
+            resolved, getattr(rep, "name", None), str(getattr(rep, "exchange", ""))
+        )
+        allowed = set(exps[:n])
+        if allowed:
+            allowed_by_ut[ut] = allowed
+
+    def _keep(it) -> bool:
+        inst = by_token.get(it.instrument_token)
+        if not inst or inst.instrument_type != InstrumentType.FUT:
+            return True  # non-FUT untouched
+        allowed = allowed_by_ut.get(inst.underlying_token or "")
+        if not allowed:
+            return True  # FAIL-OPEN
+        if not inst.expiry:
+            return True
+        return inst.expiry in allowed
+
+    return [it for it in items if _keep(it)]
+
+
 @router.get("/segment/{segment_name}/items", response_model=APIResponse[list])
 async def list_segment_items(segment_name: str, user: CurrentUser):
     """Return only the instruments THIS user has explicitly added under
@@ -166,6 +235,10 @@ async def list_segment_items(segment_name: str, user: CurrentUser):
             for it in items
             if token_row.get(it.instrument_token, "") not in inactive_admin
         ]
+
+    # Trim FUT favourites whose expiry is beyond the user's effective expiry
+    # cap for that underlying (read-time only, FUT-only, fail-open).
+    items = await _drop_items_beyond_expiry_cap(user.id, items)
 
     return APIResponse(
         data=[
