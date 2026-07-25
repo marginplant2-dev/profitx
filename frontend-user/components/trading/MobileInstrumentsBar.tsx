@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Filter, Plus, Search, Star, Trash2, X } from "lucide-react";
+import { ArrowRight, Filter, Plus, Search, Star, Trash2, X } from "lucide-react";
 import { InstrumentAPI, MarketwatchAPI, SegmentSettingsAPI } from "@/lib/api";
 import { useMarketStream } from "@/lib/useMarketStream";
 import { cn, formatPrice, pnlColor } from "@/lib/utils";
@@ -363,6 +363,13 @@ export function MobileInstrumentsBar({ activeToken, onSelect }: Props) {
       return {
         instrument_token: s.token,
         symbol: s.symbol,
+        // Keep derivative metadata so search rows can render the
+        // FUTURE/FUT · strike · CE/PE badges + expiry (screenshot design).
+        name: s.name,
+        instrument_type: s.instrument_type,
+        expiry: s.expiry,
+        strike: s.strike,
+        option_type: s.option_type,
         exchange: s.exchange,
         segment: s.segment ?? s.instrument_type,
         bid: live?.bid ?? null,
@@ -540,6 +547,37 @@ export function MobileInstrumentsBar({ activeToken, onSelect }: Props) {
               const changePct = q.change_pct ?? liveOverlay?.change_pct ?? null;
               const inSearchMode = debouncedSearch.trim().length > 0;
               const alreadyAdded = managedSegmentName ? addedTokenSet.has(token) : false;
+
+              // ── Search results — screenshot design: symbol + expiry +
+              // FUTURE/FUT · strike · CE/PE badges + arrow + star, NO prices.
+              if (inSearchMode) {
+                return (
+                  <SearchResultRow
+                    key={token}
+                    q={q}
+                    active={managedSegmentName ? alreadyAdded : starred}
+                    onSelect={() =>
+                      onSelect(token, {
+                        ltp: q.ltp,
+                        bid: q.bid,
+                        ask: q.ask,
+                        symbol: q.symbol,
+                        exchange: q.exchange,
+                        segment: q.segment ?? q.instrument_type,
+                      })
+                    }
+                    onToggleStar={() => {
+                      if (managedSegmentName) {
+                        if (alreadyAdded) removeFromSegment(token, q.symbol);
+                        else addToSegment(token, q.symbol);
+                      } else {
+                        toggleFavorite(token);
+                      }
+                    }}
+                  />
+                );
+              }
+
               // Right-edge action button — see desktop InstrumentsPanel
               // for the same context rules. Keeps the mobile row tight:
               // ONE action on the right edge, no star+plus side-by-side.
@@ -775,6 +813,152 @@ function InstrumentRow({
       </div>
 
       {rightAction}
+    </div>
+  );
+}
+
+/** "2026-07-26" → "26 JUL". Empty string when unparseable / absent. */
+function fmtExpiry(v?: string | null): string {
+  if (!v) return "";
+  const d = new Date(String(v).length <= 10 ? `${v}T00:00:00` : String(v));
+  if (Number.isNaN(d.getTime())) return "";
+  return `${d.getDate()} ${d.toLocaleString("en-US", { month: "short" }).toUpperCase()}`;
+}
+
+/** Underlying/base from a search hit — the friendly name up to the first
+ *  space+digit (expiry / strike), else the whole name. */
+function underlyingOf(q: any): string {
+  const name = String(q?.name || q?.symbol || "");
+  const m = name.match(/^(.*?)\s+\d/);
+  return (m ? m[1] : name).trim() || name;
+}
+
+function SearchBadge({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone?: "blue" | "red";
+}) {
+  return (
+    <span
+      className={cn(
+        "shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+        tone === "blue"
+          ? "border-primary/40 text-primary"
+          : tone === "red"
+            ? "border-sell/40 text-sell"
+            : "border-border text-muted-foreground",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+/**
+ * Search-result row (screenshot design): base symbol + expiry, then the
+ * type badges (FUTURE/FUT · strike · CE/PE), an arrow to open the trade
+ * sheet, and a star to add to the watchlist / segment. No live prices —
+ * that's for the watchlist browse rows only.
+ */
+function SearchResultRow({
+  q,
+  active,
+  onSelect,
+  onToggleStar,
+}: {
+  q: any;
+  active: boolean;
+  onSelect: () => void;
+  onToggleStar: () => void;
+}) {
+  const it = String(q.instrument_type ?? "").toUpperCase();
+  const optType = String(
+    q.option_type ?? (it === "CE" || it === "PE" ? it : ""),
+  ).toUpperCase();
+  const isOpt = optType === "CE" || optType === "PE";
+  const isFut = !isOpt && (it === "FUT" || /FUT$/.test(String(q.symbol ?? "")));
+  const strikeNum = Number(q.strike);
+  const strike =
+    q.strike != null && q.strike !== "" && Number.isFinite(strikeNum)
+      ? String(Math.round(strikeNum))
+      : q.strike
+        ? String(q.strike)
+        : "";
+  const exp = fmtExpiry(q.expiry);
+  const base = underlyingOf(q);
+  const title = isOpt
+    ? [base, strike, optType].filter(Boolean).join(" ")
+    : base;
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className="flex w-full cursor-pointer items-center gap-2 border-b border-border/40 px-3 py-3 transition-colors hover:bg-muted/30"
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="truncate text-[15px] font-bold tracking-tight">{title}</span>
+        {exp && (
+          <span className="shrink-0 text-[11px] font-medium text-muted-foreground">
+            {exp}
+          </span>
+        )}
+      </div>
+
+      <div className="flex shrink-0 items-center gap-1.5">
+        {isFut && (
+          <>
+            <SearchBadge>FUTURE</SearchBadge>
+            <SearchBadge>FUT</SearchBadge>
+          </>
+        )}
+        {isOpt && (
+          <>
+            {strike && <SearchBadge>{strike}</SearchBadge>}
+            <SearchBadge tone={optType === "CE" ? "blue" : "red"}>{optType}</SearchBadge>
+          </>
+        )}
+        {!isFut && !isOpt && it && it !== "EQ" && <SearchBadge>{it}</SearchBadge>}
+      </div>
+
+      <div className="flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+          aria-label="Open"
+          className="grid size-8 place-items-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
+        >
+          <ArrowRight className="size-4" />
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleStar();
+          }}
+          aria-label={active ? "Remove from watchlist" : "Add to watchlist"}
+          className="grid size-8 shrink-0 place-items-center rounded hover:bg-muted/40"
+        >
+          <Star
+            className={cn(
+              "size-4 transition-colors",
+              active ? "fill-atm text-atm" : "text-muted-foreground",
+            )}
+          />
+        </button>
+      </div>
     </div>
   );
 }
