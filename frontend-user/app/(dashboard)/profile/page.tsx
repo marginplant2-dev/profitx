@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ProfileAPI, AuthAPI, WalletAPI } from "@/lib/api";
+import { DemoUpgradeDialog } from "@/components/wallet/DemoUpgradeDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -114,6 +115,10 @@ export default function ProfilePage() {
   });
   const marginAvailable = Number(wallet?.available_balance ?? 0);
 
+  // Add Funds / Withdraw now open a dialog IN PLACE (operator removed the
+  // standalone /wallet page). Demo accounts get the upgrade prompt.
+  const [fundsOpen, setFundsOpen] = useState(false);
+
   const [subView, setSubView] = useState<SubView>("main");
   const [name, setName] = useState("");
   useEffect(() => {
@@ -182,17 +187,16 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2.5">
-          {/* Deep-link straight into the deposit / withdraw flow so a single
-              tap opens it (no second tap on the wallet page). */}
-          <Button asChild variant="outline" className="h-10">
-            <Link href="/wallet?open=withdraw">
-              <ArrowUp className="size-4" /> Withdraw
-            </Link>
+          {/* Open the funds dialog in place — no navigation to a wallet page. */}
+          <Button
+            variant="outline"
+            className="h-10"
+            onClick={() => setFundsOpen(true)}
+          >
+            <ArrowUp className="size-4" /> Withdraw
           </Button>
-          <Button asChild className="h-10">
-            <Link href="/wallet?open=deposit">
-              <ArrowDown className="size-4" /> Add Funds
-            </Link>
+          <Button className="h-10" onClick={() => setFundsOpen(true)}>
+            <ArrowDown className="size-4" /> Add Funds
           </Button>
         </div>
       </section>
@@ -298,6 +302,9 @@ export default function ProfilePage() {
       <p className="px-1 pb-4 pt-2 text-center text-[10px] text-muted-foreground">
         ProfitX · v1.0.0
       </p>
+
+      {/* Funds dialog — opens in place from Add Funds / Withdraw. */}
+      <DemoUpgradeDialog open={fundsOpen} onClose={() => setFundsOpen(false)} />
     </div>
   );
 }

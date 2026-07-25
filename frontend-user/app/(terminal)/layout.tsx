@@ -208,7 +208,7 @@ export default function TerminalLayout({ children }: { children: React.ReactNode
           <div className="hidden items-center gap-1.5 md:flex">
             <ThemeToggle />
             <Button asChild variant="ghost" size="icon" aria-label="Wallet" className="size-8">
-              <Link href="/wallet">
+              <Link href="/profile">
                 <WalletIcon className="size-4" />
               </Link>
             </Button>

@@ -43,7 +43,6 @@ import {
 const PREFETCH_ROUTES = [
   "/terminal",
   "/option-chain",
-  "/wallet",
   // `/reports` has no page.tsx — it's a layout-only group whose real
   // landing page is `/reports/pnl` (same href the profile "Reports" row
   // uses). Prefetching bare `/reports` fired an RSC request that 404'd

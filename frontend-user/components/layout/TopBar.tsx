@@ -90,7 +90,7 @@ export function TopBar() {
           snapshot to fall back on, show a dim ellipsis instead of "₹0" so
           the user doesn't briefly think their wallet is empty. */}
       <Link
-        href="/wallet"
+        href="/profile"
         className="ml-auto inline-flex max-w-[55vw] items-center gap-1.5 truncate rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10 sm:max-w-none sm:gap-2 sm:px-3"
       >
         <Wallet className="size-3.5 shrink-0" />
