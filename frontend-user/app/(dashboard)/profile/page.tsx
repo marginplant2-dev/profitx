@@ -263,7 +263,7 @@ export default function ProfilePage() {
             tone="buy"
             title="Reports"
             sub="Statements and reports in one place"
-            href="/reports/pnl"
+            href="/reports/tradebook"
           />
         </ul>
       </section>

@@ -32,7 +32,7 @@ const items = [
   // ka same kaam hai, bas position section rakho".
   { href: "/positions", label: "Positions", icon: Activity },
   { href: "/ledger", label: "Ledger", icon: ScrollText },
-  { href: "/reports/pnl", label: "Reports", icon: FileText },
+  { href: "/reports/tradebook", label: "Reports", icon: FileText },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/profile", label: "Profile", icon: User },
 ];

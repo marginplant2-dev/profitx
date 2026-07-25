@@ -44,11 +44,11 @@ const PREFETCH_ROUTES = [
   "/terminal",
   "/option-chain",
   // `/reports` has no page.tsx — it's a layout-only group whose real
-  // landing page is `/reports/pnl` (same href the profile "Reports" row
+  // landing page is `/reports/tradebook` (same href the profile "Reports" row
   // uses). Prefetching bare `/reports` fired an RSC request that 404'd
   // (the two red `reports?_rsc=…` 404s in the network panel). Warm the
   // actual route instead.
-  "/reports/pnl",
+  "/reports/tradebook",
 ];
 
 export function PagePrewarmer() {
