@@ -23,6 +23,21 @@ type LedgerRow = {
   reference_id?: string | null;
 };
 
+// Only money-movement rows the user cares about: deposits, withdrawals,
+// settlement accrual/recovery, and admin manual adjustments (which the
+// backend relabels "Deposit/Withdrawal by admin"). Everything else
+// (brokerage, P&L, margin locks…) is hidden from the ledger view.
+const VISIBLE_TYPES = new Set([
+  "DEPOSIT",
+  "WITHDRAWAL",
+  "SETTLEMENT_OUTSTANDING_BOOKED",
+  "SETTLEMENT_OUTSTANDING_RECOVERY",
+  "ADJUSTMENT",
+  "BONUS",
+  "PENALTY",
+  "PROMO",
+]);
+
 export default function UserLedgerPage() {
   // Last 30 days. The backend sorts ledger rows ascending then applies the
   // limit, so calling with no date window only ever returned the OLDEST rows
@@ -41,6 +56,11 @@ export default function UserLedgerPage() {
   const [pageSize, setPageSize] = useState(50);
 
   const allRows = (data?.rows ?? []) as LedgerRow[];
+  // Show only deposits / withdrawals / settlements / admin-manual rows.
+  const visibleRows = useMemo(
+    () => allRows.filter((r) => VISIBLE_TYPES.has(r.type)),
+    [allRows],
+  );
   const totalSettlementBooked = Number(data?.total_settlement_booked ?? 0);
   // Newest first. The backend returns rows ascending (oldest → newest), so the
   // latest activity ended up at the BOTTOM. Flip to descending for display so
@@ -49,10 +69,10 @@ export default function UserLedgerPage() {
   // display order keeps every balance correct.
   const sortedRows = useMemo(
     () =>
-      [...allRows].sort(
+      [...visibleRows].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       ),
-    [allRows]
+    [visibleRows]
   );
   const pagedRows = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -61,7 +81,11 @@ export default function UserLedgerPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="Ledger" description={`${data?.count ?? 0} entries`} />
+      <PageHeader
+        back
+        title="Ledger"
+        description={`${visibleRows.length} entries — deposits, withdrawals & settlements`}
+      />
 
       {/* Summary cards — 3 standard tiles plus a fourth "Settlement
           booked" tile that only appears when there is one. Surfacing
@@ -169,7 +193,7 @@ export default function UserLedgerPage() {
       <Pagination
         page={page}
         pageSize={pageSize}
-        total={allRows.length}
+        total={visibleRows.length}
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
         pageSizeOptions={[25, 50, 100, 200]}
