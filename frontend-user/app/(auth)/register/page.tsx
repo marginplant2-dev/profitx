@@ -41,7 +41,7 @@ const PWD_RULES = [
 ];
 
 const inputCls =
-  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.06]";
+  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-blue-500/50 focus:bg-white/[0.06]";
 const iconCls =
   "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500";
 const labelCls = "text-xs font-medium text-slate-300";
@@ -209,7 +209,7 @@ function RegisterPageInner() {
                         ? "bg-red-500"
                         : score <= 4
                           ? "bg-amber-400"
-                          : "bg-emerald-500"
+                          : "bg-blue-500"
                       : "bg-white/10",
                   )}
                 />
@@ -227,13 +227,13 @@ function RegisterPageInner() {
                     key={r.id}
                     className={cn(
                       "flex items-center gap-1.5 text-[11px] transition-colors",
-                      ok ? "text-emerald-400" : "text-slate-500",
+                      ok ? "text-blue-400" : "text-slate-500",
                     )}
                   >
                     <span
                       className={cn(
                         "grid size-3.5 shrink-0 place-items-center rounded-full",
-                        ok ? "bg-emerald-500/15" : "bg-white/5",
+                        ok ? "bg-blue-500/15" : "bg-white/5",
                       )}
                     >
                       {ok ? (
@@ -272,7 +272,7 @@ function RegisterPageInner() {
 
         <Button
           type="submit"
-          className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#10b981] to-[#059669] text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-opacity hover:opacity-95"
+          className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#3b82f6] to-[#2563eb] text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-opacity hover:opacity-95"
           loading={form.formState.isSubmitting}
         >
           Register

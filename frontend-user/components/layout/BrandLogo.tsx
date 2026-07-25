@@ -1,10 +1,10 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useBranding } from "@/lib/branding-context";
 import { API_URL } from "@/lib/constants";
+import { ProfitXMark } from "@/components/common/ProfitXLogo";
 
 interface BrandLogoProps {
   href?: string | null;
@@ -30,32 +30,32 @@ export function BrandLogo({ href = "/marketwatch", size = "md", iconOnly = false
   const logoSrc = branding?.logo_url ? `${API_URL}${branding.logo_url}` : null;
 
   const sizes = {
-    sm: { wrap: "text-sm", icon: "size-5", badge: "p-1", img: "size-5" },
-    md: { wrap: "text-lg", icon: "size-6", badge: "p-1.5", img: "size-6" },
-    lg: { wrap: "text-2xl", icon: "size-8", badge: "p-2", img: "size-8" },
+    sm: { wrap: "text-sm", mark: "size-6", badge: "p-1", img: "size-5" },
+    md: { wrap: "text-lg", mark: "size-7", badge: "p-1.5", img: "size-6" },
+    lg: { wrap: "text-2xl", mark: "size-9", badge: "p-2", img: "size-8" },
   }[size];
 
   const content = (
     <span className={cn("inline-flex items-center gap-2 font-semibold tracking-tight", sizes.wrap, className)}>
-      <span className={cn("rounded-md bg-primary/15 text-primary", sizes.badge)}>
-        {logoSrc ? (
-          // eslint-disable-next-line @next/next/no-img-element
+      {logoSrc ? (
+        <span className={cn("rounded-md bg-primary/15", sizes.badge)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoSrc}
             alt={customName || "Logo"}
             className={cn(sizes.img, "rounded object-contain")}
           />
-        ) : (
-          <TrendingUp className={sizes.icon} strokeWidth={2.5} />
-        )}
-      </span>
+        </span>
+      ) : (
+        <ProfitXMark className={sizes.mark} />
+      )}
       {!iconOnly && (
         customName ? (
           <span className="text-foreground">{customName}</span>
         ) : (
           <span>
-            <span className="text-primary">Profit</span>
-            <span className="text-foreground">X</span>
+            <span className="text-foreground">Profit</span>
+            <span className="text-primary">X</span>
           </span>
         )
       )}

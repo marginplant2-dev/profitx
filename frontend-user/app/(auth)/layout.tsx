@@ -2,10 +2,10 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { TrendingUp } from "lucide-react";
 import { useBranding } from "@/lib/branding-context";
 import { API_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { ProfitXMark } from "@/components/common/ProfitXLogo";
 
 /**
  * ProfitX auth shell — a single, centered, dark card (Trade-app style).
@@ -18,8 +18,8 @@ function BrandMark({ logoSrc, name }: { logoSrc: string | null; name: string }) 
   const isDefault = name.toLowerCase() === "profitx";
   return (
     <div className="mb-6 flex flex-col items-center gap-3">
-      <div className="relative grid size-16 place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#10b981] to-[#047857] shadow-lg shadow-emerald-500/25 ring-1 ring-emerald-400/30">
-        <TrendingUp className="size-8 text-white" strokeWidth={2.6} />
+      <div className="relative size-16 shadow-lg shadow-blue-500/25">
+        <ProfitXMark className="size-16" />
         {logoSrc && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -37,7 +37,7 @@ function BrandMark({ logoSrc, name }: { logoSrc: string | null; name: string }) 
       <h1 className="text-xl font-extrabold tracking-tight text-white">
         {isDefault ? (
           <>
-            Profit<span className="text-emerald-400">X</span>
+            Profit<span className="text-blue-400">X</span>
           </>
         ) : (
           name

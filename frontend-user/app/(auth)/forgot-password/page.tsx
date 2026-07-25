@@ -25,12 +25,12 @@ const resetSchema = z.object({
 });
 
 const inputCls =
-  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.06]";
+  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-blue-500/50 focus:bg-white/[0.06]";
 const iconCls =
   "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500";
 const labelCls = "text-xs font-medium text-slate-300";
 const primaryBtn =
-  "h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#10b981] to-[#059669] text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-opacity hover:opacity-95";
+  "h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#3b82f6] to-[#2563eb] text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-opacity hover:opacity-95";
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState<"request" | "reset">("request");

@@ -72,7 +72,7 @@ export default function TwoFAEnrollPage() {
                 <code className="break-all font-mono text-xs text-white">{secret}</code>
                 <button
                   onClick={copySecret}
-                  className="grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-500/15 text-emerald-400 transition-colors hover:bg-emerald-500/25"
+                  className="grid size-8 shrink-0 place-items-center rounded-lg bg-blue-500/15 text-blue-400 transition-colors hover:bg-blue-500/25"
                   aria-label="Copy secret"
                 >
                   {copied ? <CheckCircle2 className="size-3.5" /> : <Copy className="size-3.5" />}
@@ -103,14 +103,14 @@ export default function TwoFAEnrollPage() {
                 placeholder="000000"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-                className="h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-center font-mono text-lg tracking-[0.5em] text-white placeholder:text-slate-600 focus:border-emerald-500/50 focus:bg-white/[0.06]"
+                className="h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-center font-mono text-lg tracking-[0.5em] text-white placeholder:text-slate-600 focus:border-blue-500/50 focus:bg-white/[0.06]"
               />
             </div>
           </div>
 
           <Button
             onClick={enable}
-            className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#10b981] to-[#059669] text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-opacity hover:opacity-95"
+            className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#3b82f6] to-[#2563eb] text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-opacity hover:opacity-95"
             loading={busy}
             disabled={code.length !== 6}
           >
@@ -120,7 +120,7 @@ export default function TwoFAEnrollPage() {
       ) : (
         <div className="flex min-h-[200px] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-3 size-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+            <div className="mx-auto mb-3 size-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
             <p className="text-sm text-slate-400">Generating secret…</p>
           </div>
         </div>

@@ -38,7 +38,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const inputCls =
-  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.06]";
+  "h-11 rounded-xl border-white/10 bg-white/[0.04] pl-10 text-sm text-white placeholder:text-slate-500 focus:border-blue-500/50 focus:bg-white/[0.06]";
 const iconCls =
   "pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500";
 const labelCls = "text-xs font-medium text-slate-300";
@@ -56,8 +56,8 @@ export default function LoginPage() {
 function LoginSplash({ subtitle }: { subtitle: string }) {
   return (
     <div className="flex min-h-[220px] flex-col items-center justify-center gap-3 text-center">
-      <div className="grid size-12 place-items-center rounded-2xl bg-emerald-500/10">
-        <Loader2 className="size-5 animate-spin text-emerald-400" />
+      <div className="grid size-12 place-items-center rounded-2xl bg-blue-500/10">
+        <Loader2 className="size-5 animate-spin text-blue-400" />
       </div>
       <div className="space-y-1">
         <p className="text-sm font-medium text-white">Signing you in…</p>
@@ -195,7 +195,7 @@ function LoginPageInner() {
             </Label>
             <Link
               href="/forgot-password"
-              className="text-xs font-medium text-emerald-400 hover:text-emerald-300"
+              className="text-xs font-medium text-blue-400 hover:text-blue-300"
             >
               Forgot password?
             </Link>
@@ -246,7 +246,7 @@ function LoginPageInner() {
 
         <Button
           type="submit"
-          className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#10b981] to-[#059669] text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-opacity hover:opacity-95"
+          className="h-11 w-full rounded-xl border-0 bg-gradient-to-r from-[#3b82f6] to-[#2563eb] text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-opacity hover:opacity-95"
           loading={form.formState.isSubmitting}
         >
           Login
@@ -264,13 +264,13 @@ function LoginPageInner() {
           {demoLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Zap className="size-4 text-emerald-400" />
+            <Zap className="size-4 text-blue-400" />
           )}
           {demoLoading ? "Setting up demo…" : "Demo Login"}
         </button>
 
         <Link href="/register" className={outlineBtn}>
-          <UserPlus className="size-4 text-emerald-400" />
+          <UserPlus className="size-4 text-blue-400" />
           Create Account
         </Link>
 

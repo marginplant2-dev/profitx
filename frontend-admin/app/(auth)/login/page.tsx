@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BrandLogo } from "@/components/layout/BrandLogo";
+import { ProfitXMark } from "@/components/common/ProfitXLogo";
 import { InstallPWAButton } from "@/components/pwa/InstallPWAButton";
 
 const schema = z.object({
@@ -43,9 +43,17 @@ export default function AdminLoginPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-background p-6">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-3">
-          <BrandLogo href={null} size="md" showAdminBadge={false} />
-          <div className="inline-flex w-fit items-center gap-2 rounded-md bg-destructive/10 px-2 py-1 text-xs uppercase tracking-wider text-destructive">
+        <CardHeader className="items-center space-y-3 text-center">
+          <div className="mb-1 flex flex-col items-center gap-3">
+            <div className="rounded-2xl shadow-lg shadow-blue-500/25">
+              <ProfitXMark className="size-16" />
+            </div>
+            <h1 className="text-xl font-extrabold tracking-tight text-foreground">
+              Profit<span className="text-primary">X</span>
+              <span className="ml-1.5 text-muted-foreground">Admin</span>
+            </h1>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-md bg-destructive/10 px-2 py-1 text-xs uppercase tracking-wider text-destructive">
             <ShieldCheck className="size-3" />
             Restricted access · Admin only
           </div>
