@@ -438,6 +438,8 @@ export const SegmentSettingsAPI = {
   // InstrumentsPanel uses this list to hide buckets whose underlying
   // segments are turned off — chip + dropdown entry both disappear.
   inactive: () => unwrap<string[]>(api.get("/user/segment-settings/inactive")),
+  // Every segment's effective settings for this user (Margin / Scripts pages).
+  all: () => unwrap<any[]>(api.get("/user/segment-settings/all")),
 };
 
 export const OrderAPI = {

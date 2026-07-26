@@ -242,3 +242,89 @@ async def list_inactive_admin_rows(user: CurrentUser):
     """
     rows = await netting_service.inactive_admin_rows(user_id=user.id)
     return APIResponse(data=sorted(rows))
+
+
+# Friendly per-segment labels for the Margin / Scripts Setting pages.
+_SEG_LABELS: dict[str, str] = {
+    "NSE_EQUITY": "NSE Equity",
+    "NSE_FUTURE": "Stock Futures (NSE)",
+    "NSE_INDEX_FUTURE": "Index Futures (NSE)",
+    "NSE_STOCK_OPTION_BUY": "Stock Option Buy (NSE)",
+    "NSE_STOCK_OPTION_SELL": "Stock Option Sell (NSE)",
+    "NSE_INDEX_OPTION_BUY": "Index Option Buy (NSE)",
+    "NSE_INDEX_OPTION_SELL": "Index Option Sell (NSE)",
+    "BSE_EQUITY": "BSE Equity",
+    "BSE_FUTURE": "Stock Futures (BSE)",
+    "BSE_INDEX_FUTURE": "Index Futures (BSE)",
+    "BSE_OPTION_BUY": "Option Buy (BSE)",
+    "BSE_OPTION_SELL": "Option Sell (BSE)",
+    "MCX_FUTURE": "MCX Futures",
+    "MCX_OPTION_BUY": "MCX Option Buy",
+    "MCX_OPTION_SELL": "MCX Option Sell",
+    "CDS_FUTURE": "Currency Futures",
+    "CDS_OPTION_BUY": "Currency Option Buy",
+    "CDS_OPTION_SELL": "Currency Option Sell",
+    "CRYPTO_SPOT": "Crypto Spot",
+    "CRYPTO_FUTURE": "Crypto Futures",
+}
+
+
+@router.get("/all", response_model=APIResponse[list])
+async def list_all_effective(user: CurrentUser):
+    """Every segment's EFFECTIVE settings for THIS user (admin → template →
+    per-user override resolved). Powers the Margin + Scripts Setting pages:
+    trading allowed/blocked, brokerage, min/order/max lots, and the
+    intraday/holding margin (leverage) per segment."""
+    from app.models._base import SegmentType
+
+    out: list[dict[str, Any]] = []
+    for seg in SegmentType:
+        name = seg.value
+        base_label = _SEG_LABELS.get(name, name.replace("_", " ").title())
+        option_type = "CE" if "OPTION" in name else None
+        # Option segments already carry the side (…_BUY / …_SELL). Futures /
+        # equity / crypto don't, so show a BUY and a SELL section each
+        # (matching the admin matrix's per-side margins).
+        if name.endswith("_BUY"):
+            sides = ["BUY"]
+        elif name.endswith("_SELL"):
+            sides = ["SELL"]
+        else:
+            sides = ["BUY", "SELL"]
+        for action in sides:
+            try:
+                resolved = await netting_service.get_effective_settings(
+                    user.id,
+                    name,
+                    action=action,
+                    option_type=option_type,
+                    product_type="MIS",
+                )
+                s = dict(resolved.get("settings", {}))
+            except Exception:
+                s = {}
+            allow = s.get("allow")
+            label = (
+                base_label
+                if (name.endswith("_BUY") or name.endswith("_SELL"))
+                else f"{base_label} — {action.title()}"
+            )
+            out.append(
+                {
+                    "segment": name,
+                    "label": label,
+                    "action": action,
+                    # allow None/True → permitted; only explicit False blocks.
+                    "trading_allowed": allow is not False,
+                    "min_lot": s.get("min_lot"),
+                    "order_lot": s.get("order_lot"),
+                    "max_lot": s.get("max_lot"),
+                    "leverage": s.get("leverage"),
+                    "overnight_leverage": s.get("overnight_leverage"),
+                    "margin_percentage": s.get("margin_percentage"),
+                    "commission_type": s.get("commission_type"),
+                    "commission_value": s.get("commission_value"),
+                    "min_brokerage": s.get("min_brokerage"),
+                }
+            )
+    return APIResponse(data=out)

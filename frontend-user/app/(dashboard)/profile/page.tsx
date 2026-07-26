@@ -249,14 +249,14 @@ export default function ProfilePage() {
             tone="primary"
             title="Margin"
             sub="Your margin and exposure details"
-            href="/reports/margin"
+            href="/margin"
           />
           <SettingRowLink
             icon={SlidersHorizontal}
             tone="info"
             title="Scripts Setting"
-            sub="Block or manage script trading"
-            href="/marketwatch"
+            sub="Lot limits & blocked segments per script"
+            href="/margin"
           />
           <SettingRowLink
             icon={ReceiptText}
