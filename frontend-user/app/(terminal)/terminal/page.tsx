@@ -12,8 +12,6 @@ import { useMarketStream } from "@/lib/useMarketStream";
 import { OrderPanel } from "@/components/trading/OrderPanel";
 import { PositionsTabs } from "@/components/trading/PositionsTabs";
 import { TradingViewChart } from "@/components/trading/TradingViewChart";
-import { FreeTradingViewChart } from "@/components/trading/FreeTradingViewChart";
-import { toPublicTvSymbol } from "@/lib/publicTvSymbol";
 import { ChartTabs, type ChartTab } from "@/components/trading/ChartTabs";
 import { TIMEFRAMES, type Timeframe } from "@/components/trading/ChartToolbar";
 import { MobileQuickTradeBar } from "@/components/trading/MobileQuickTradeBar";
@@ -24,6 +22,9 @@ import { WalletStrip } from "@/components/trading/WalletStrip";
 import { cn, formatPercent, pnlColor } from "@/lib/utils";
 
 const ORDER_PANEL_COLLAPSED_KEY = "setupfx.terminal.orderPanelCollapsed";
+// Remembers the last instrument the user had on the chart so returning to
+// the chart (after Positions / other pages) restores it instead of resetting.
+const LAST_TOKEN_KEY = "setupfx.terminal.lastToken";
 
 // Long labels for the mobile timeframe button row (screenshot shows
 // "1 Min / 5 Min / 15 Min / 1 Hour / 1 Day"). Keyed by the short
@@ -86,8 +87,22 @@ export default function TradingTerminalPage() {
     if (selectedToken) return;
     let cancelled = false;
     (async () => {
+      // 1. Restore the last chart the user viewed (persists across nav).
       try {
-        const found = await InstrumentAPI.search("BTCUSD", undefined, undefined, 1);
+        const last =
+          typeof window !== "undefined"
+            ? window.localStorage.getItem(LAST_TOKEN_KEY)
+            : null;
+        if (!cancelled && last) {
+          setSelectedToken(last);
+          return;
+        }
+      } catch {
+        // ignore
+      }
+      // 2. Fresh open → default to the NIFTY 50 index chart.
+      try {
+        const found = await InstrumentAPI.search("NIFTY 50", undefined, undefined, 1);
         if (!cancelled && found && found[0]?.token) {
           setSelectedToken(found[0].token);
           return;
@@ -103,6 +118,17 @@ export default function TradingTerminalPage() {
       cancelled = true;
     };
   }, [selectedToken, wlQuotes]);
+
+  // Persist the selected chart token so re-entering the chart (from
+  // Positions / any other page) restores the same instrument.
+  useEffect(() => {
+    if (typeof window === "undefined" || !selectedToken) return;
+    try {
+      window.localStorage.setItem(LAST_TOKEN_KEY, selectedToken);
+    } catch {
+      // ignore
+    }
+  }, [selectedToken]);
 
   const { data: instrument } = useQuery({
     queryKey: ["instrument", selectedToken],
@@ -644,21 +670,12 @@ export default function TradingTerminalPage() {
                 (() => {
                   const tvInterval =
                     tf.interval === "minute" ? "1" : tf.interval === "3minute" ? "3" : tf.interval === "5minute" ? "5" : tf.interval === "15minute" ? "15" : tf.interval === "30minute" ? "30" : tf.interval === "60minute" ? "60" : "1D";
-                  // International (forex / metals / energy / crypto) → free
-                  // TradingView Advanced widget with real OANDA/Binance data.
-                  // Indian (NSE/BSE/NFO/BFO/MCX) → licensed chart on our feed.
-                  const publicTv = toPublicTvSymbol(
-                    instrument?.symbol,
-                    instrument?.exchange,
-                    (instrument as any)?.segment,
-                  );
-                  return publicTv ? (
-                    <FreeTradingViewChart
-                      tvSymbol={publicTv}
-                      interval={tvInterval}
-                      theme={chartTheme}
-                    />
-                  ) : (
+                  // ONE chart everywhere — the licensed charting-library on our
+                  // own datafeed (backend history + synthetic LTP-anchored bars
+                  // when a feed has no candles + per-tick live push). The free
+                  // public OANDA/Binance widget was dropped so crypto/forex use
+                  // the same fast in-place-swap chart as Indian instruments.
+                  return (
                     <TradingViewChart
                       token={selectedToken}
                       symbol={instrument?.symbol}
