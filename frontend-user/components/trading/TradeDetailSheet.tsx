@@ -15,6 +15,7 @@ import {
   Minus,
   Plus,
   ShoppingBag,
+  ShoppingCart,
   Target,
   Timer,
   Zap,
@@ -891,19 +892,17 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 <span className="truncate text-lg font-bold">
                   {instrument?.symbol ?? "—"}
                 </span>
-                {openPosCount > 0 && (
-                  <Link
-                    href="/positions"
-                    aria-label={`${openPosCount} open position${openPosCount === 1 ? "" : "s"}`}
-                    className="flex h-5 items-center gap-1 rounded-full bg-primary/15 px-1.5 text-[10px] font-bold text-primary"
-                  >
-                    <ShoppingBag className="size-3" />
-                    {openPosCount}
-                  </Link>
-                )}
+                <Link
+                  href="/positions"
+                  aria-label={`${openPosCount} open position${openPosCount === 1 ? "" : "s"}`}
+                  className="flex h-5 items-center gap-1 rounded-full bg-muted/50 px-1.5 text-[10px] font-bold text-muted-foreground"
+                >
+                  <ShoppingCart className="size-3" />
+                  {openPosCount}
+                </Link>
               </div>
               <div className="mt-0.5 text-[11px] text-muted-foreground">
-                {expiryShort && <span className="mr-1.5">{expiryShort}</span>}
+                {seg && <span className="uppercase">{seg} · </span>}
                 LTP <span className="font-tabular tabular-nums">{fmtPrice(ltp)}</span>
               </div>
             </div>
@@ -960,69 +959,45 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             </>
           )}
 
-          {/* OHLC strip — full-width, 4 equal cells with vertical dividers.
-              Replaces the old flex-wrap "O x H x L x C x" row that wrapped
-              awkwardly onto multiple lines for long values (e.g. gold
-              4218.56), which looked cramped/unprofessional. */}
-          {!positionMode && (quote?.open > 0 ||
-            quote?.high > 0 ||
-            quote?.low > 0 ||
-            quote?.prev_close > 0) && (
-            <div className="mt-2.5 grid grid-cols-4 overflow-hidden rounded-lg border border-border">
-              {[
-                { k: "O", v: quote?.open, cls: "text-foreground" },
-                { k: "H", v: quote?.high, cls: "text-buy" },
-                { k: "L", v: quote?.low, cls: "text-sell" },
-                { k: "C", v: quote?.prev_close, cls: "text-foreground" },
-              ].map((c, i) => (
-                <div
-                  key={c.k}
-                  className={cn(
-                    "flex flex-col items-center justify-center py-1.5",
-                    i > 0 && "border-l border-border",
-                  )}
-                >
-                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    {c.k}
-                  </span>
-                  <span className={cn("font-tabular tabular-nums text-xs", c.cls)}>
-                    {c.v > 0 ? Number(c.v).toFixed(2) : "—"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* OHLC box removed on mobile per operator — the LTP High / Low /
+              Open / Last Trade Time stat row below replaces it. */}
         </div>
 
-        {/* ── Action row (hidden in position mode) ────────────────── */}
+        {/* ── BUY / SELL side toggle + SL–TP (hidden in position mode) ── */}
         {!positionMode && (
         <div className="flex items-center gap-2 px-4 pt-3">
-          <Link
-            href={`/terminal?token=${encodeURIComponent(token ?? "")}`}
-            className="flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-xs font-medium hover:bg-muted/40"
-          >
-            <LineChart className="size-3.5" /> Charts
-          </Link>
-          {showOptionChain && (
+          <div className="flex flex-1 gap-2">
             <button
               type="button"
-              onClick={() => setOptionChainOpen(true)}
-              className="flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-3 text-xs font-medium hover:bg-muted/40"
+              onClick={() => setSide("BUY")}
+              className={cn(
+                "flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
+                side === "BUY"
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-card text-muted-foreground",
+              )}
             >
-              <Layers className="size-3.5" /> Option Chain
+              <ArrowUpRight className="size-4" /> BUY
             </button>
-          )}
-          {/* BUY / SELL toggle removed from this row — the big BUY/SELL
-              CTAs at the bottom of the sheet already drive direction
-              (each carries its own live price label), and the duplicate
-              header toggle just confused users who tapped it expecting
-              to place a trade. */}
+            <button
+              type="button"
+              onClick={() => setSide("SELL")}
+              className={cn(
+                "flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
+                side === "SELL"
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-card text-muted-foreground",
+              )}
+            >
+              <ArrowDownRight className="size-4" /> SELL
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setSlTpEnabled((v) => !v)}
-            className="ml-auto flex h-9 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-xs font-medium"
+            className="flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-xs font-medium"
           >
-            <Target className="size-3.5" /> SL · TP
+            <Target className="size-3.5" /> SL – TP
             <span
               className={cn(
                 "relative inline-block h-4 w-7 rounded-full transition-colors",
@@ -1040,14 +1015,11 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
         </div>
         )}
 
-        {/* ── Stats grid ──────────────────────────────────────────── */}
-        {/* LTP High / Low / Open / Last — hidden on mobile to keep
-            the bottom-sheet compact so BUY/SELL stays on screen
-            without scrolling. Desktop keeps the four-up summary. */}
-        <div className="hidden grid-cols-4 gap-2 px-4 pt-4 text-[11px] sm:grid">
-          {/* Render an em-dash when the feed hasn't delivered an OHLC
-              field yet (typical for fresh subscribes / off-hours), so
-              the user doesn't see a confusing "0.0000" placeholder. */}
+        {/* ── LTP High / Low / Open / Last Trade Time ──────────────────
+            Visible on mobile (replaces the old OHLC box). Hidden in
+            position mode, which has its own compact layout. */}
+        {!positionMode && (
+        <div className="grid grid-cols-4 gap-2 px-4 pt-4 text-[11px]">
           <Stat
             label="LTP High"
             value={Number(quote?.high ?? 0) > 0 ? fmtPrice(quote!.high) : "—"}
@@ -1061,10 +1033,11 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             value={Number(quote?.open ?? 0) > 0 ? fmtPrice(quote!.open) : "—"}
           />
           <Stat
-            label="Last Trade"
-            value={quote?.timestamp ? formatIST(quote.timestamp, { withSeconds: false }) : "—"}
+            label="Last Trade Time"
+            value={quote?.timestamp ? formatIST(quote.timestamp, { withSeconds: true }) : "—"}
           />
         </div>
+        )}
 
         <div className="my-3 h-px bg-border" />
 
@@ -1258,6 +1231,32 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
               3. Carry Fwd           — this order's overnight margin
             Replaces the old 5-tile layout (Total Balance / Equity / Used
             Margin / Margin / Available) that crowded the mobile sheet. */}
+        {/* View chart / Option chain — moved down here (above the margin
+            row) per operator. */}
+        {!positionMode && (
+          <div
+            className={cn(
+              "mt-4 grid gap-2 px-4",
+              showOptionChain ? "grid-cols-2" : "grid-cols-1",
+            )}
+          >
+            <Link
+              href={`/terminal?token=${encodeURIComponent(token ?? "")}`}
+              className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-card text-sm font-medium text-primary hover:bg-muted/40"
+            >
+              <LineChart className="size-4" /> View chart
+            </Link>
+            {showOptionChain && (
+              <button
+                type="button"
+                onClick={() => setOptionChainOpen(true)}
+                className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-card text-sm font-medium text-primary hover:bg-muted/40"
+              >
+                <Layers className="size-4" /> Option chain
+              </button>
+            )}
+          </div>
+        )}
         {(() => {
           const walletUsed = Number(walletSummary?.used_margin ?? 0);
           const walletAvail = Number(walletSummary?.available_balance ?? 0);
@@ -1273,22 +1272,22 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           return (
             <div className="mt-4 grid grid-cols-3 gap-2 px-4 text-[11px]">
               <MarginCard
-                label="Available"
-                value={formatINRCompact(availableMargin)}
-                fullValue={`${formatINR(availableMargin)} free · Equity ${formatINR(equity)}${
-                  openUnrl !== 0 ? ` (open P/L ${openUnrl >= 0 ? "+" : ""}${formatINR(openUnrl)})` : ""
-                }`}
-                accent={availableMargin >= intradayMargin ? "ok" : "low"}
-              />
-              <MarginCard
                 label="Intraday"
                 value={formatINRCompact(intradayMargin)}
                 fullValue={`Intraday margin · ${formatINR(intradayMargin)}`}
               />
               <MarginCard
-                label="Carry Fwd"
+                label="Holding"
                 value={formatINRCompact(carryFwd)}
-                fullValue={`Carry-forward (overnight) margin · ${formatINR(carryFwd)}`}
+                fullValue={`Holding (overnight) margin · ${formatINR(carryFwd)}`}
+              />
+              <MarginCard
+                label="Margin Available"
+                value={formatINRCompact(availableMargin)}
+                fullValue={`${formatINR(availableMargin)} free · Equity ${formatINR(equity)}${
+                  openUnrl !== 0 ? ` (open P/L ${openUnrl >= 0 ? "+" : ""}${formatINR(openUnrl)})` : ""
+                }`}
+                accent={availableMargin >= intradayMargin ? "ok" : "low"}
               />
             </div>
           );
