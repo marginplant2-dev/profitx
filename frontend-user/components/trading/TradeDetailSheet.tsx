@@ -974,7 +974,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 "flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
                 side === "BUY"
                   ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-card text-muted-foreground",
+                  : "border border-border bg-[#121e2c] text-muted-foreground",
               )}
             >
               <ArrowUpRight className="size-4" /> BUY
@@ -986,7 +986,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 "flex h-9 flex-1 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
                 side === "SELL"
                   ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-card text-muted-foreground",
+                  : "border border-border bg-[#121e2c] text-muted-foreground",
               )}
             >
               <ArrowDownRight className="size-4" /> SELL
@@ -995,7 +995,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           <button
             type="button"
             onClick={() => setSlTpEnabled((v) => !v)}
-            className="flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-xs font-medium"
+            className="flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-border bg-[#121e2c] px-2.5 text-xs font-medium"
           >
             <Target className="size-3.5" /> SL – TP
             <span
@@ -1053,7 +1053,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             <button
               type="button"
               onClick={() => setUnit((u) => (u === "LOTS" ? "QTY" : "LOTS"))}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-card px-2.5 text-[11px] font-medium hover:bg-muted/40"
+              className="flex h-8 items-center gap-1.5 rounded-md border border-border bg-[#121e2c] px-2.5 text-[11px] font-medium hover:bg-muted/40"
             >
               <ArrowLeftRight className="size-3" />
               {unit === "LOTS" ? "Qty" : "Lots"}
@@ -1063,7 +1063,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
 
         {/* ── Price + Lot stepper ─────────────────────────────────── */}
         <div className="mt-3 grid grid-cols-2 gap-2 px-4">
-          <div className="rounded-lg border border-border bg-card px-3 py-3 text-center">
+          <div className="rounded-lg border border-border bg-[#121e2c] px-3 py-3 text-center">
             {orderType === "MARKET" ? (
               <>
                 <div className="text-base font-semibold">Market</div>
@@ -1086,7 +1086,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
               </>
             )}
           </div>
-          <div className="flex flex-col items-stretch gap-1 rounded-lg border border-border bg-card px-2 py-2">
+          <div className="flex flex-col items-stretch gap-1 rounded-lg border border-border bg-[#121e2c] px-2 py-2">
             <div className="flex items-center justify-between gap-1">
               <button
                 type="button"
@@ -1173,7 +1173,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
               "flex h-10 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
               orderType === "MARKET"
                 ? "bg-primary text-primary-foreground"
-                : "border border-border bg-card text-muted-foreground",
+                : "border border-border bg-[#121e2c] text-muted-foreground",
             )}
           >
             <Zap className="size-4" /> Market
@@ -1185,7 +1185,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
               "flex h-10 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
               orderType === "LIMIT"
                 ? "bg-primary text-primary-foreground"
-                : "border border-border bg-card text-muted-foreground",
+                : "border border-border bg-[#121e2c] text-muted-foreground",
             )}
           >
             <Timer className="size-4" /> Limit
@@ -1196,7 +1196,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
         {/* ── SL / TP inputs ──────────────────────────────────────── */}
         {slTpEnabled && (
           <div className="mt-3 grid grid-cols-2 gap-2 px-4">
-            <div className="rounded-lg border border-border bg-card px-3 py-2">
+            <div className="rounded-lg border border-border bg-[#121e2c] px-3 py-2">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Stop Loss
               </div>
@@ -1208,7 +1208,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 className="w-full bg-transparent text-base font-semibold outline-none"
               />
             </div>
-            <div className="rounded-lg border border-border bg-card px-3 py-2">
+            <div className="rounded-lg border border-border bg-[#121e2c] px-3 py-2">
               <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Take Profit
               </div>
@@ -1242,7 +1242,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           >
             <Link
               href={`/terminal?token=${encodeURIComponent(token ?? "")}`}
-              className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-card text-sm font-medium text-primary hover:bg-muted/40"
+              className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-[#121e2c] text-sm font-medium text-primary hover:bg-muted/40"
             >
               <LineChart className="size-4" /> View chart
             </Link>
@@ -1250,7 +1250,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
               <button
                 type="button"
                 onClick={() => setOptionChainOpen(true)}
-                className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-card text-sm font-medium text-primary hover:bg-muted/40"
+                className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-[#121e2c] text-sm font-medium text-primary hover:bg-muted/40"
               >
                 <Layers className="size-4" /> Option chain
               </button>
@@ -1435,7 +1435,7 @@ function MarginCard({
   accent?: "ok" | "low";
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border bg-card px-2 py-2">
+    <div className="min-w-0 rounded-lg border border-border bg-[#121e2c] px-2 py-2">
       <div className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">
         {label}
       </div>
