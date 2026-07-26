@@ -845,7 +845,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
         onClose();
       }}
     >
-      <DialogContent bottomSheet className="flex max-h-[92vh] max-w-md flex-col gap-0 overflow-hidden p-0">
+      <DialogContent bottomSheet hideClose={positionMode} className="flex max-h-[92vh] max-w-md flex-col gap-0 overflow-hidden p-0">
         <DialogTitle className="sr-only">
           Trade {instrument?.symbol ?? ""}
         </DialogTitle>
@@ -1066,10 +1066,10 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
 
         {/* ── Price + Lot stepper ─────────────────────────────────── */}
         <div className="mt-3 grid grid-cols-2 gap-2 px-4">
-          <div className="rounded-lg border border-border bg-[#121e2c] px-3 py-3 text-center">
+          <div className="rounded-lg border border-border bg-[#121e2c] px-3 py-2 text-center">
             {orderType === "MARKET" ? (
               <>
-                <div className="text-base font-semibold">Market</div>
+                <div className="text-sm font-semibold">Market</div>
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   Price
                 </div>
@@ -1081,7 +1081,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                   value={limitPrice}
                   onChange={(e) => setLimitPrice(e.target.value)}
                   placeholder={fmtPrice(refPrice).replace(priceCcy, "")}
-                  className="w-full bg-transparent text-center text-base font-semibold outline-none"
+                  className="w-full bg-transparent text-center text-sm font-semibold outline-none"
                 />
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   Limit Price
@@ -1095,7 +1095,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 type="button"
                 onClick={() => bumpLots(-lotStep)}
                 aria-label={unit === "LOTS" ? "Decrease lots" : "Decrease quantity"}
-                className="grid size-9 place-items-center rounded-md hover:bg-muted/40"
+                className="grid size-8 place-items-center rounded-md hover:bg-muted/40"
               >
                 <Minus className="size-4" />
               </button>
@@ -1147,7 +1147,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 type="button"
                 onClick={() => bumpLots(lotStep)}
                 aria-label={unit === "LOTS" ? "Increase lots" : "Increase quantity"}
-                className="grid size-9 place-items-center rounded-md hover:bg-muted/40"
+                className="grid size-8 place-items-center rounded-md hover:bg-muted/40"
               >
                 <Plus className="size-4" />
               </button>
@@ -1173,7 +1173,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             type="button"
             onClick={() => setOrderType("MARKET")}
             className={cn(
-              "flex h-10 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
+              "flex h-9 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
               orderType === "MARKET"
                 ? "bg-primary text-primary-foreground"
                 : "border border-border bg-[#121e2c] text-muted-foreground",
@@ -1185,7 +1185,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             type="button"
             onClick={() => setOrderType("LIMIT")}
             className={cn(
-              "flex h-10 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
+              "flex h-9 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-colors",
               orderType === "LIMIT"
                 ? "bg-primary text-primary-foreground"
                 : "border border-border bg-[#121e2c] text-muted-foreground",
@@ -1208,7 +1208,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 value={stopLoss}
                 onChange={(e) => setStopLoss(e.target.value)}
                 placeholder="Optional"
-                className="w-full bg-transparent text-base font-semibold outline-none"
+                className="w-full bg-transparent text-sm font-semibold outline-none"
               />
             </div>
             <div className="rounded-lg border border-border bg-[#121e2c] px-3 py-2">
@@ -1220,7 +1220,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
                 placeholder="Optional"
-                className="w-full bg-transparent text-base font-semibold outline-none"
+                className="w-full bg-transparent text-sm font-semibold outline-none"
               />
             </div>
           </div>
@@ -1245,7 +1245,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           >
             <Link
               href={`/terminal?token=${encodeURIComponent(token ?? "")}`}
-              className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-[#121e2c] text-sm font-medium text-primary hover:bg-muted/40"
+              className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-[#121e2c] text-sm font-medium text-primary hover:bg-muted/40"
             >
               <LineChart className="size-4" /> View chart
             </Link>
@@ -1253,7 +1253,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
               <button
                 type="button"
                 onClick={() => setOptionChainOpen(true)}
-                className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-[#121e2c] text-sm font-medium text-primary hover:bg-muted/40"
+                className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-[#121e2c] text-sm font-medium text-primary hover:bg-muted/40"
               >
                 <Layers className="size-4" /> Option chain
               </button>
@@ -1307,7 +1307,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
               disabled={submitting !== null}
               onClick={() => submit(side)}
               className={cn(
-                "flex h-14 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold",
+                "flex h-12 w-full items-center justify-center gap-2 rounded-lg text-sm font-bold",
                 side === "BUY"
                   ? "bg-buy text-buy-foreground hover:bg-buy/90"
                   : "bg-sell text-sell-foreground hover:bg-sell/90",
@@ -1334,7 +1334,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             type="button"
             disabled={submitting !== null}
             onClick={() => submit("BUY")}
-            className="flex h-14 flex-col items-center justify-center gap-0 rounded-lg bg-buy text-buy-foreground hover:bg-buy/90"
+            className="flex h-12 flex-col items-center justify-center gap-0 rounded-lg bg-buy text-buy-foreground hover:bg-buy/90"
           >
             <span className="flex items-center gap-1 text-sm font-bold">
               <ArrowUpRight className="size-4" /> BUY
@@ -1347,7 +1347,7 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
             type="button"
             disabled={submitting !== null}
             onClick={() => submit("SELL")}
-            className="flex h-14 flex-col items-center justify-center gap-0 rounded-lg bg-sell text-sell-foreground hover:bg-sell/90"
+            className="flex h-12 flex-col items-center justify-center gap-0 rounded-lg bg-sell text-sell-foreground hover:bg-sell/90"
           >
             <span className="flex items-center gap-1 text-sm font-bold">
               <ArrowDownRight className="size-4" /> SELL

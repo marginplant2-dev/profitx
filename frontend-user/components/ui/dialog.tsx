@@ -31,8 +31,11 @@ export const DialogContent = React.forwardRef<
     /** Anchor the dialog to the bottom of the screen and slide it up
      *  (mobile bottom-sheet). Default is the centered modal. */
     bottomSheet?: boolean;
+    /** Hide the top-right X close button (e.g. when a back arrow already
+     *  dismisses the sheet). */
+    hideClose?: boolean;
   }
->(({ className, children, bottomSheet, ...props }, ref) => (
+>(({ className, children, bottomSheet, hideClose, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
@@ -55,12 +58,14 @@ export const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close
-        className="absolute right-3 top-3 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        aria-label="Close"
-      >
-        <X className="size-4" />
-      </DialogPrimitive.Close>
+      {!hideClose && (
+        <DialogPrimitive.Close
+          className="absolute right-3 top-3 rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          aria-label="Close"
+        >
+          <X className="size-4" />
+        </DialogPrimitive.Close>
+      )}
     </DialogPrimitive.Content>
   </DialogPortal>
 ));

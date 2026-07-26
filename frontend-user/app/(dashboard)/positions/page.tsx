@@ -1611,7 +1611,15 @@ export default function PositionsPage() {
         onClose={() => setPosSheetRow(null)}
         onExitAll={(row) => {
           setPosSheetRow(null);
-          squareoff(String(row?.id ?? ""));
+          // Active tab rows are per-fill trades → close THIS one via
+          // closeActiveTrade (one-by-one). Position tab rows are the net
+          // position → squareoff. Using squareoff on an active-trade id was
+          // the bug where "exit" did nothing on the Active tab.
+          if (tab === "active") {
+            exitActive(String(row?.id ?? ""));
+          } else {
+            squareoff(String(row?.id ?? ""));
+          }
         }}
         onAddMore={(token) => {
           // Keep the position sheet mounted underneath so the order sheet's
