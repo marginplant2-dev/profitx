@@ -10,9 +10,12 @@ import {
   ArrowUpRight,
   ArrowLeftRight,
   ChevronLeft,
+  Clock,
+  CreditCard,
   LineChart,
   Layers,
   Minus,
+  Package,
   Plus,
   ShoppingBag,
   ShoppingCart,
@@ -1270,24 +1273,27 @@ function TradeDetailSheetInner({ token, open, onClose, onSwap, initialSide, seed
           // equals the intraday figure there.
           const carryFwd = isInfowaySeg ? intradayMargin : carryforwardMargin;
           return (
-            <div className="mt-4 grid grid-cols-3 gap-2 px-4 text-[11px]">
-              <MarginCard
+            <div className="mt-4 grid grid-cols-3 gap-2 px-4">
+              <MarginStat
+                icon={Clock}
                 label="Intraday"
                 value={formatINRCompact(intradayMargin)}
                 fullValue={`Intraday margin · ${formatINR(intradayMargin)}`}
               />
-              <MarginCard
+              <MarginStat
+                icon={Package}
                 label="Holding"
                 value={formatINRCompact(carryFwd)}
                 fullValue={`Holding (overnight) margin · ${formatINR(carryFwd)}`}
               />
-              <MarginCard
+              <MarginStat
+                icon={CreditCard}
                 label="Margin Available"
                 value={formatINRCompact(availableMargin)}
                 fullValue={`${formatINR(availableMargin)} free · Equity ${formatINR(equity)}${
                   openUnrl !== 0 ? ` (open P/L ${openUnrl >= 0 ? "+" : ""}${formatINR(openUnrl)})` : ""
                 }`}
-                accent={availableMargin >= intradayMargin ? "ok" : "low"}
+                align="right"
               />
             </div>
           );
@@ -1419,6 +1425,42 @@ function LotMeta({ label, value }: { label: string; value: string }) {
     <div>
       <div className="text-muted-foreground">{label}</div>
       <div className="font-tabular text-base font-bold tabular-nums">{value}</div>
+    </div>
+  );
+}
+
+/** Plain margin stat — icon + label + value, NO card/box (operator:
+ *  "Intraday / Holding / Margin Available cards ko card se remove karna tha"). */
+function MarginStat({
+  icon: Icon,
+  label,
+  value,
+  fullValue,
+  align,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+  fullValue?: string;
+  align?: "right";
+}) {
+  return (
+    <div className={cn("min-w-0", align === "right" && "text-right")}>
+      <div
+        className={cn(
+          "flex items-center gap-1 text-[10px] text-muted-foreground",
+          align === "right" && "justify-end",
+        )}
+      >
+        <Icon className="size-3 shrink-0" />
+        <span className="truncate">{label}</span>
+      </div>
+      <div
+        title={fullValue}
+        className="mt-0.5 truncate font-tabular text-[13px] font-bold tabular-nums text-foreground"
+      >
+        {value}
+      </div>
     </div>
   );
 }
